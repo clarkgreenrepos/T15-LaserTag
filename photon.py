@@ -44,5 +44,3 @@ splash_screen()
 
 # Run
 root.mainloop()
-
-#I hate git hub it is stupid why don't we use git lab.
