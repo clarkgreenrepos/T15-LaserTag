@@ -6,7 +6,6 @@ from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3
 def player_screen(): #player screen main method
     print("woop")
     
-
 # Splash screen
 def display_splash():
     center_x = (root.winfo_width() - original_image.width) // 2
