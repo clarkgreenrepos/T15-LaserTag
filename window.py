@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import PhotoImage
+from playerScreen import PS
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
 
