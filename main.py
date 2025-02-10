@@ -44,7 +44,7 @@ def player_screen(): #player screen main method
             playerid.grid(row = i + 1, column = 1)
             playerid_list.append(playerid)
 
-            codename = tk.Entry(frame, width = 20)
+            codename = tk.Entry(frame, width = 20, state = 'readonly')
             codename.grid(row = i + 1, column = 2)
             codename_list.append(codename)
         for i in range(15): #GREEN TEAM entry fields. index 15 - 29 in the codename and player ID lists
@@ -55,11 +55,23 @@ def player_screen(): #player screen main method
             playerid.grid(row = i + 1, column = 4)
             playerid_list.append(playerid)
 
-            codename = tk.Entry(frame, width = 20)
+            codename = tk.Entry(frame, width = 20, state = 'readonly')
             codename.grid(row = i + 1, column = 5)
             codename_list.append(codename)
+        for entry in playerid_list:
+            entry.bind("<Return>", submit_player)
     create_entry_list()
+    
     print("woop")
+
+def submit_player(event):
+    print("check for valid ID")
+    entry = event.widget
+    id = entry.get()
+    if id == "78":
+        print("valid id")
+    else:
+        print("invalid id")
     
 def show_continue_button():
     continue_button.place(relx=0.5, rely=0.5, anchor="center")
