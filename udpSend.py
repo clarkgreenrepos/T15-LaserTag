@@ -39,7 +39,7 @@ def Send(message: int):
 
 
 arguments = sys.argv  # Arguments passed in
-ip = "127.0.0.1"  # Default Ip Address
+ip = "127.0.0.1"  # Default Ip Address. This will eventually need to become a variable, since we need to change ip addresses
 port = 7501  # Default  Port
 message = "86" # Default Message
 
@@ -74,5 +74,17 @@ sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
 print("\nSending To:", ip, ":", port)
 
-# Testing The UDP Function
-Send(message)
+#Send loop
+while True:
+    shooter_id = input("Enter transmitting equipment ID: ")
+    hit_id = input("Enter hit equipment ID: ")
+
+    if shooter_id == hit_id:
+        print("Invalid input. Cannot transmit/send same equipment ID")
+    elif shooter_id.isdigit() and hit_id.isdigit():
+        message = f"{shooter_id}:{hit_id}"
+        sock.sendto(message.encode(), (ip, port))
+        print(f"Sent: {message}")
+    else:
+        print("Invalid input. ID must be a number")
+
