@@ -33,9 +33,13 @@ def player_screen(): #player screen main method
     id_label1.grid(row = 0, column = 1)
     id_label2 = tk.Label(frame, text = "ID No.")
     id_label2.grid(row = 0, column = 4)
-    playerid_list = [] #list to hold all of the player ID numbers
-    codename_list = [] #list to hold all of the player codenames
-   
+
+    start_button = tk.Button(root, text = "START GAME", command = start_game, bg = "green")
+    start_button.place(x = (root.winfo_width() // 2) + 50, y = root.winfo_height() // 2)
+
+    network_button = tk.Button(root, text = "Network Address", command = change_network, bg = "blue")
+    network_button.place(x = (root.winfo_width() // 2) -100, y = root.winfo_height() // 2)
+
     def create_entry_list(): #create the entry fields and append them to their respective lists
         for i in range(15): #RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
             entryNo = tk.Label(frame, width = 2, text = f"{i + 1}")
@@ -60,12 +64,12 @@ def player_screen(): #player screen main method
             codename.grid(row = i + 1, column = 5)
             codename_list.append(codename)
         for entry in playerid_list:
-            entry.bind("<Return>", submit_player) #Enter key will be bound to the ID fields
+            entry.bind("<Return>", check_id) #Enter key will be bound to the ID fields
     create_entry_list()
     
     print("woop")
 
-def submit_player(event):
+def check_id(event):
     print("check for valid ID")
     entry = event.widget
     id = entry.get()
@@ -73,6 +77,21 @@ def submit_player(event):
         print("valid id")
     else:
         print("invalid id")
+
+def add_codename(event):
+    #TODO add code to add a new user to the server with their ID and codename
+    print("woopy")
+
+def change_network():
+
+    #TODO add a function for changing the active network address
+    print("i don't wanna")
+
+#START GAME STUFF
+def start_game():
+
+    #TODO create start game function that moves to the game action screen
+    print("no")
     
 def show_continue_button():
     continue_button.place(relx=0.5, rely=0.5, anchor="center")
@@ -97,7 +116,9 @@ canvas = tk.Canvas(root, width=1280, height=720, bg="#040333", bd=0, highlightth
 canvas.pack()
 original_image = Image.open("img/photon_logo.png") # all image files is in the "img" folder
 splash_img = ImageTk.PhotoImage(original_image) #photo for the splash screen.
-playerList = [30]
+playerid_list = [] #list to hold all of the player ID number entries
+codename_list = [] #list to hold all of the player codename entries
+playerList = [30] #master player list
 
 splash_screen()
 
