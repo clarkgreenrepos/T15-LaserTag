@@ -64,26 +64,40 @@ def player_screen(): #player screen main method
             codename.grid(row = i + 1, column = 5)
             codename_list.append(codename)
         for entry in playerid_list:
-            entry.bind("<Return>", check_id) #Enter key will be bound to the ID fields
+            entry.bind("<Return>", get_codename) #Enter key will be bound to the ID fields
     create_entry_list()
     
     print("woop")
 
-def check_id(event):
-    print("check for valid ID")
+def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
     id = entry.get()
-    if len(id) <= 6:
-        print("valid id")
-    else:
+    if len(id) != 6: # Player IDs must always be 6 digits
         print("invalid id")
+    else:
+        if check_id(id):
+            #TODO create function that querys the server for the corresponding ID. Should return the codename in the form of a string
+            print("codename found")
+        else:
+            for i, id_entry in enumerate(playerid_list): #locate which index of the playerid_list the entered id is from
+                if id_entry == event.widget:
+                    print(f"id found at index {i}")
+                    create_codename(i)
+
+def create_codename(entry_no):
+    #create small window for entering new name
+    print("I'll do it later")
+
+def check_id(id):
+    id = str(id)
+    #TODO create function to query the server on whether or not the input ID has a corresponding codename. If no codename, return FALSE
+    return False
 
 def add_codename(event):
     #TODO add code to add a new user to the server with their ID and codename
     print("woopy")
 
 def change_network():
-
     #TODO add a function for changing the active network address
     print("i don't wanna")
 
@@ -93,12 +107,6 @@ def start_game():
     #TODO create start game function that moves to the game action screen
     print("no")
     
-def show_continue_button():
-    continue_button.place(relx=0.5, rely=0.5, anchor="center")
-    root.update()
-
-def remove_continue_button():
-    continue_button.place_forget()
 
 # Screen window
 root = tk.Tk()
@@ -121,11 +129,6 @@ codename_list = [] #list to hold all of the player codename entries
 playerList = [30] #master player list
 
 splash_screen()
-
-
-# Continue button
-# TODO - make continue button less ugly
-continue_button = tk.Button(root, text="Continue", command=player_screen, bg="lightgray")
 
 # Run
 root.mainloop()

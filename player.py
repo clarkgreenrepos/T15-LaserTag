@@ -1,4 +1,3 @@
-
 class Player:
     def __init__(self, ID, Codename, EqpID):
         self.ID = ID
