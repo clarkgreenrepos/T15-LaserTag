@@ -1,4 +1,7 @@
 import tkinter as tk
+import asyncio
+import socket
+import threading
 from tkinter import PhotoImage
 from playerEntry import entry_loop
 from player import Player
@@ -39,6 +42,8 @@ def player_screen(): #player screen main method
 
     network_button = tk.Button(root, text = "Network Address", command = change_network, bg = "blue")
     network_button.place(x = (root.winfo_width() // 2) -100, y = root.winfo_height() // 2)
+
+    start_udp_receive_task()
 
     def create_entry_list(): #create the entry fields and append them to their respective lists
         for i in range(15): #RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
@@ -100,6 +105,36 @@ def add_codename(event):
 def change_network():
     #TODO add a function for changing the active network address
     print("i don't wanna")
+
+# UDP SERVER STUFF
+def start_udp_receive_task():
+    # Runs UDP client on a seperate thread so tkinter is not blocked
+    def run_udp():
+        asyncio.run(udp_client_receive())
+
+    threading.Thread(target=run_udp, daemon=True).start()
+
+class UDPHandler(asyncio.DatagramProtocol):
+    def datagram_received(self, data, addr):
+        message = data.decode().strip()
+        print(f"Received from {addr}: {message}")
+        # TODO - update GUI with received codename or handle new codename entry
+
+async def udp_client_receive(ip="127.0.0.1", port=7501):
+    loop = asyncio.get_running_loop()
+
+    print(f"Starting UDP client receive on {ip}:{port}")
+    transport, protocol = await loop.create_datagram_endpoint(
+        lambda: UDPHandler(),
+        local_addr=(ip, port)
+    )
+
+    print(f"Listening for UDP receives on {ip}:{port}")
+
+    try:
+        await asyncio.Event().wait()  # Run indefinitely
+    finally:
+        transport.close()
 
 #START GAME STUFF
 def start_game():
