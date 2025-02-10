@@ -1,1 +1,5 @@
-This is blank for now
+GITHUB MEMBERS
+clarkgreenrepos - Matthew Clark Green
+BraedenBarlow - Braeden Barlow
+ColinPhifer - Colin Phifer
+TimothyShaneEwing - Tim Ewing
