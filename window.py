@@ -1,10 +1,13 @@
 import tkinter as tk
 from tkinter import PhotoImage
+from playerEntry import entry_loop
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
 
 def player_screen(): #player screen main method
-    print("woop")
+    remove_continue_button()
+    print("Starting entry loop")
+    entry_loop(root)
     
 # Splash screen
 def display_splash():
@@ -16,11 +19,17 @@ def display_splash():
 def remove_splash():
     canvas.delete("all")
 
-def splash_screen(): #will display splash image 3 seconds after startup, remove the image after 8 and move to player_screen after 12
+def splash_screen(): #will display splash image 3 seconds after startup, remove the image after 8 and show continue button after 12
     root.after(3000, display_splash)
     root.after(8000, remove_splash)
-    root.after(12000, player_screen)
+    root.after(12000, show_continue_button)
 
+def show_continue_button():
+    continue_button.place(relx=0.5, rely=0.5, anchor="center")
+    root.update()
+
+def remove_continue_button():
+    continue_button.place_forget()
 
 # Screen window
 root = tk.Tk()
@@ -38,8 +47,8 @@ splash_screen()
 
 
 # Continue button
-#continue_button = tk.Button(root, text="Continue", command=player_screen)
-#continue_button.pack(pady=10)
+# TODO - make continue button less ugly
+continue_button = tk.Button(root, text="Continue", command=player_screen, bg="lightgray")
 
 # Run
 root.mainloop()
