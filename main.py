@@ -17,7 +17,7 @@ def remove_splash():
 def splash_screen(): #will display splash image 3 seconds after startup, remove the image after 8 and show continue button after 12
     root.after(3000, display_splash)
     root.after(8000, remove_splash)
-    root.after(12000, show_continue_button)
+    root.after(12000, player_screen)
 
 #Player Screen Stuff
 
