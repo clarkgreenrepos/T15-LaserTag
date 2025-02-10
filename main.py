@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import PhotoImage
 from playerEntry import entry_loop
+from player import Player
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
     
@@ -59,7 +60,7 @@ def player_screen(): #player screen main method
             codename.grid(row = i + 1, column = 5)
             codename_list.append(codename)
         for entry in playerid_list:
-            entry.bind("<Return>", submit_player)
+            entry.bind("<Return>", submit_player) #Enter key will be bound to the ID fields
     create_entry_list()
     
     print("woop")
@@ -68,7 +69,7 @@ def submit_player(event):
     print("check for valid ID")
     entry = event.widget
     id = entry.get()
-    if id == "78":
+    if len(id) <= 6:
         print("valid id")
     else:
         print("invalid id")
@@ -96,6 +97,7 @@ canvas = tk.Canvas(root, width=1280, height=720, bg="#040333", bd=0, highlightth
 canvas.pack()
 original_image = Image.open("img/photon_logo.png") # all image files is in the "img" folder
 splash_img = ImageTk.PhotoImage(original_image) #photo for the splash screen.
+playerList = [30]
 
 splash_screen()
 
