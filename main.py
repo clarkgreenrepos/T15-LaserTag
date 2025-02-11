@@ -38,14 +38,21 @@ def player_screen(): #player screen main method
     id_label2 = tk.Label(frame, text = "ID No.")
     id_label2.grid(row = 0, column = 4)
 
+    global button_frame
     button_frame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for buttons
     button_frame.place(x = (root.winfo_width() // 2) + 170, y = 100)
 
+    global start_button
     start_button = tk.Button(button_frame, text = "START GAME", command = start_game, bg = "green")
-    start_button.grid(row = 1, column = 0)
+    start_button.grid(row = 2, column = 0)
 
+    global network_button
     network_button = tk.Button(button_frame, text = "Network Address", command = change_network, bg = "blue")
     network_button.grid(row = 0, column = 0)
+
+    global reset_button
+    reset_button = tk.Button(button_frame, text = "Reset Teams", command = reset_teams, bg = "red")
+    reset_button.grid(row = 1, column = 0)
 
     start_udp_receive_task()
 
@@ -76,7 +83,24 @@ def player_screen(): #player screen main method
             entry.bind("<Return>", get_codename) #Enter key will be bound to the ID fields
     create_entry_list()
     
-    print("woop")
+def disable_main():
+    for i, entry in enumerate(playerid_list): #disable interactables in main window while a secondary window is active
+        entry.config(state = "readonly")
+    start_button['state'] = tk.DISABLED
+    network_button['state'] = tk.DISABLED
+    reset_button['state'] = tk.DISABLED
+
+
+
+def enable_main():
+    for i, entry in enumerate(playerid_list):
+        entry.config(state = "normal")
+    start_button['state'] = tk.NORMAL
+    network_button['state'] = tk.NORMAL
+    reset_button['state'] = tk.NORMAL
+
+def reset_teams():
+    print("no i won't")
 
 def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
@@ -113,16 +137,16 @@ def create_codename(entry_no):
             add_codename(entry_no) #This function is further down. It is supposed to give the codename and player ID to the datebase by referencing the "entry_no" (int that represents the index where the codename and id can be found in the playerid_list and codename_list)
             input_window.destroy()
             playerid_list[entry_no].config(state = "normal")
-            root.attributes("-disable", False)
+            enable_main()
         else:
             input_label.config(text = "Invalid Codename", fg = "red")
 
     def cancel_input():
         input_window.destroy()
         playerid_list[entry_no].config(state = "normal")
-        root.attributes("-disable", False) #reenables the main window
+        enable_main()
 
-    root.attributes("-disable", True) #disables main window while input window is active
+    disable_main()
     input_window = tk.Toplevel(root)
     input_window.title("Input New Codename")
     input_window.geometry("300x200")
