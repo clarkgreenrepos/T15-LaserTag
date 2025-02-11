@@ -7,7 +7,8 @@ from playerEntry import entry_loop
 from player import Player
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
-    
+from udpSend import UdpSend #the Udp Send Class Brought to you by Tim :>)
+
 # Splash screen
 def display_splash():
     center_x = (root.winfo_width() - original_image.width) // 2
