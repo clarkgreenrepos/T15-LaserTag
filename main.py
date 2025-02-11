@@ -83,22 +83,21 @@ def player_screen(): #player screen main method
             entry.bind("<Return>", get_codename) #Enter key will be bound to the ID fields
     create_entry_list()
     
-def disable_main():
-    for i, entry in enumerate(playerid_list): #disable interactables in main window while a secondary window is active
+def disable_main(): #disable interactables in main window while a secondary window is active
+    for i, entry in enumerate(playerid_list):
         entry.config(state = "readonly")
     start_button['state'] = tk.DISABLED
     network_button['state'] = tk.DISABLED
     reset_button['state'] = tk.DISABLED
 
-def enable_main():
-    for i, entry in enumerate(playerid_list): #reenable interactables in main window once secondary window is gone
+def enable_main(): #reenable interactables in main window once secondary window is gone
+    for i, entry in enumerate(playerid_list):
         entry.config(state = "normal")
     start_button['state'] = tk.NORMAL
     network_button['state'] = tk.NORMAL
     reset_button['state'] = tk.NORMAL
 
-def reset_teams():
-    print("no i won't")
+def reset_teams(): #resets all entries in playerid_list and codename_list. Also, sets the elements in eqpid_list and playerList to "None"
     for i in range(len(playerid_list)):
         playerid_list[i].delete(0, tk.END)
     for i in range(len(codename_list)):
@@ -116,7 +115,7 @@ def get_codename(event): #check to see if id is valid then check to see if id ma
     if len(id) != 6: # Player IDs must always be 6 digits
         print("invalid id")
     else:
-        for i, id_entry in enumerate(playerid_list):#locat which index of the playerid_list the entered id is from
+        for i, id_entry in enumerate(playerid_list):#locate which index of the playerid_list the entered id is from
             if id_entry == event.widget:
                 print(f"id found at index {i}")
                 entry = i
@@ -191,6 +190,39 @@ def add_codename(entry_no):
 def change_network():
     #TODO add a function for changing the active network address
     print("i don't wanna")
+    def submit_address():
+        network_address = input_entry.get()
+        print(network_address) #from this point, add the code to first check that the input address is valid and then actually change the new address.
+        input_window.destroy()
+        enable_main()
+
+    def cancel_input():
+        input_window.destroy()
+        enable_main()
+
+    disable_main()
+    input_window = tk.Toplevel(root)
+    input_window.title("Input New Address")
+    input_window.geometry("300x200")
+    input_window.minsize(300, 200)
+    input_window.config(bg = "lightblue")
+    input_window.protocol("WM_DELETE_WINDOW", cancel_input)
+    
+    input_frame = tk.Frame(input_window, padx = 10, pady = 10)
+    input_frame.place(x = 75, y = 50)
+
+    input_label = tk.Label(input_frame, text = "Enter New Address:")
+    input_label.grid(row = 0, column = 0)
+
+    input_entry = tk.Entry(input_frame, width = 20)
+    input_entry.grid(row = 1, column = 0)
+
+    input_button = tk.Button(input_frame, text = "Submit", command = submit_address, bg = "lightgreen")
+    input_button.grid(row = 2, column = 0)
+
+    cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
+    cancel_button.grid(row = 3, column = 0)
+
 
 # UDP SERVER STUFF
 def start_udp_receive_task():
@@ -238,6 +270,8 @@ root.configure(bg="#040333")
 original_icon = Image.open("img/T15_icon.png")
 icon_img = ImageTk.PhotoImage(original_icon)
 root.iconphoto(False, icon_img)
+
+network_address = None #place holder for input network address
 
 
 
