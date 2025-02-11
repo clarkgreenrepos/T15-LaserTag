@@ -27,7 +27,7 @@ def splash_screen(): #will display splash image 3 seconds after startup, remove 
 #PLAYER SCREEN STUFF
 
 def player_screen(): #player screen main method
-    frame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for fields and buttons
+    frame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for fields
     frame.place(x = (root.winfo_width() // 2) - 230, y = 100)
     red_label = tk.Label(frame, text = "RED TEAM")
     green_label = tk.Label(frame, text = "GREEN TEAM")
@@ -38,11 +38,14 @@ def player_screen(): #player screen main method
     id_label2 = tk.Label(frame, text = "ID No.")
     id_label2.grid(row = 0, column = 4)
 
-    start_button = tk.Button(root, text = "START GAME", command = start_game, bg = "green")
-    start_button.place(x = (root.winfo_width() // 2) + 50, y = root.winfo_height() // 2)
+    button_frame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for buttons
+    button_frame.place(x = (root.winfo_width() // 2) + 170, y = 100)
 
-    network_button = tk.Button(root, text = "Network Address", command = change_network, bg = "blue")
-    network_button.place(x = (root.winfo_width() // 2) -100, y = root.winfo_height() // 2)
+    start_button = tk.Button(button_frame, text = "START GAME", command = start_game, bg = "green")
+    start_button.grid(row = 1, column = 0)
+
+    network_button = tk.Button(button_frame, text = "Network Address", command = change_network, bg = "blue")
+    network_button.grid(row = 0, column = 0)
 
     start_udp_receive_task()
 
@@ -109,12 +112,14 @@ def create_codename(entry_no):
             codename_list[entry_no].config(state = 'readonly')
             add_codename(entry_no) #This function is further down. It is supposed to give the codename and player ID to the datebase by referencing the "entry_no" (int that represents the index where the codename and id can be found in the playerid_list and codename_list)
             input_window.destroy()
+            playerid_list[entry_no].config(state = "normal")
             root.attributes("-disable", False)
         else:
             input_label.config(text = "Invalid Codename", fg = "red")
 
     def cancel_input():
         input_window.destroy()
+        playerid_list[entry_no].config(state = "normal")
         root.attributes("-disable", False) #reenables the main window
 
     root.attributes("-disable", True) #disables main window while input window is active
@@ -123,6 +128,9 @@ def create_codename(entry_no):
     input_window.geometry("300x200")
     input_window.minsize(300, 200)
     input_window.config(bg = "lightblue")
+    input_window.protocol("WM_DELETE_WINDOW", cancel_input)
+
+    playerid_list[entry_no].config(state = "readonly")
     
     input_frame = tk.Frame(input_window, padx = 10, pady = 10)
     input_frame.place(x = 75, y = 50)
@@ -136,7 +144,7 @@ def create_codename(entry_no):
     input_button = tk.Button(input_frame, text = "Submit", command = submit_codename, bg = "lightgreen")
     input_button.grid(row = 2, column = 0)
 
-    cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "lightred")
+    cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
     cancel_button.grid(row = 3, column = 0)
 
 def check_id(id):
@@ -184,7 +192,6 @@ async def udp_client_receive(ip="127.0.0.1", port=7501):
 
 #START GAME STUFF
 def start_game():
-
     #TODO create start game function that moves to the game action screen
     print("no")
     
@@ -192,11 +199,13 @@ def start_game():
 # Screen window
 root = tk.Tk()
 root.title("Photon Super Duper Epic Kool Kid Laser Tag Game for Kool Kidz") # Window name
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-root.geometry(f"{screen_width}x{screen_height}+0+0")  # Window size, will automatically adjust to the host machine's screen size
+root.geometry("1280x720+0+0")
 root.minsize(700, 500)
+root.maxsize(1280, 720)
 root.configure(bg="#040333")
+original_icon = Image.open("img/T15_icon.png")
+icon_img = ImageTk.PhotoImage(original_icon)
+root.iconphoto(False, icon_img)
 
 
 
