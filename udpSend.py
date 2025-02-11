@@ -1,20 +1,5 @@
-# UDP File
+# UDP Send File
 
-# Requirements
-#   Need to set up 2 udp sockets for transmission of data to/from players
-#   Use localhost (127.0.0.1) for network address
-#   Use socket 7500 to broadcast, 7501 to receive
-#   Include functionality to be able to change network address
-#   Format of transmission will be a single integer (equipment id of player who got hit)
-#   Format of received data will be integer:integer (equipment id of player transmitting:equipment id of player hit)
-
-# Arguments
-# 1st Message
-# 2nd Custom Ip
-# 3rd Custom Broadcast Port
-# if any arguments are not given they will default to the value given in the requirements
-
-import sys
 import socket
 
 #The UDP Class sends messages to any UDP Server
