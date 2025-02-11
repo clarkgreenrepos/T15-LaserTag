@@ -90,10 +90,8 @@ def disable_main():
     network_button['state'] = tk.DISABLED
     reset_button['state'] = tk.DISABLED
 
-
-
 def enable_main():
-    for i, entry in enumerate(playerid_list):
+    for i, entry in enumerate(playerid_list): #reenable interactables in main window once secondary window is gone
         entry.config(state = "normal")
     start_button['state'] = tk.NORMAL
     network_button['state'] = tk.NORMAL
@@ -101,6 +99,16 @@ def enable_main():
 
 def reset_teams():
     print("no i won't")
+    for i in range(len(playerid_list)):
+        playerid_list[i].delete(0, tk.END)
+    for i in range(len(codename_list)):
+        codename_list[i].config(state = 'normal')
+        codename_list[i].delete(0, tk.END)
+        codename_list[i].config(state = 'readonly')
+    for i in range(len(eqpid_list)):
+        eqpid_list[i] = None
+    for i in range(len(playerList)):
+        playerList[i] = None
 
 def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
@@ -240,6 +248,7 @@ original_image = Image.open("img/photon_logo.png") # all image files is in the "
 splash_img = ImageTk.PhotoImage(original_image) #photo for the splash screen.
 playerid_list = [] #list to hold all of the player ID number entries
 codename_list = [] #list to hold all of the player codename entries
+eqpid_list = [] #list to hold all of the equipment ID entries
 playerList = [30] #master player list
 
 splash_screen()
