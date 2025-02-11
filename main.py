@@ -23,7 +23,7 @@ def splash_screen(): #will display splash image 3 seconds after startup, remove 
     root.after(8000, remove_splash)
     root.after(12000, player_screen)
 
-#Player Screen Stuff
+#PLAYER SCREEN STUFF
 
 def player_screen(): #player screen main method
     frame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for fields and buttons
@@ -45,7 +45,7 @@ def player_screen(): #player screen main method
 
     start_udp_receive_task()
 
-    def create_entry_list(): #create the entry fields and append them to their respective lists
+    def create_entry_list(): #create the entry fields and append them to their respective lists. IDs should all be 6 digits. Codenames should be more than 0 but no more than 20 characters.
         for i in range(15): #RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
             entryNo = tk.Label(frame, width = 2, text = f"{i + 1}")
             entryNo.grid(row = i + 1, column = 0)
@@ -76,30 +76,75 @@ def player_screen(): #player screen main method
 
 def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
-    id = entry.get()
+    id = entry.get() #entered player id
     if len(id) != 6: # Player IDs must always be 6 digits
         print("invalid id")
     else:
+        for i, id_entry in enumerate(playerid_list):#locat which index of the playerid_list the entered id is from
+            if id_entry == event.widget:
+                print(f"id found at index {i}")
+                entry = i
         if check_id(id):
-            #TODO create function that querys the server for the corresponding ID. Should return the codename in the form of a string
+            #TODO create function that querys the database for the corresponding ID. Should return the codename in the form of a string
             print("codename found")
+            codename_list[entry].config(state = 'normal')
+            codename_list[entry].delete(0, tk.END)
+            codename_list[entry].insert(0, "found codename")
+            codename_list[entry].config(state = 'readonly')
+            
         else:
-            for i, id_entry in enumerate(playerid_list): #locate which index of the playerid_list the entered id is from
-                if id_entry == event.widget:
-                    print(f"id found at index {i}")
-                    create_codename(i)
+            create_codename(entry)
 
 def create_codename(entry_no):
     #create small window for entering new name
-    print("I'll do it later")
+    print(f"I'll do index {entry_no} now")
+
+    def submit_codename():
+        codename = input_entry.get()
+        if 0 < len(codename) <= 20:
+            codename_list[entry_no].config(state = 'normal')
+            codename_list[entry_no].delete(0, tk.END)
+            codename_list[entry_no].insert(0, codename)
+            codename_list[entry_no].config(state = 'readonly')
+            add_codename(entry_no) #This function is further down. It is supposed to give the codename and player ID to the datebase by referencing the "entry_no" (int that represents the index where the codename and id can be found in the playerid_list and codename_list)
+            input_window.destroy()
+            root.attributes("-disable", False)
+        else:
+            input_label.config(text = "Invalid Codename", fg = "red")
+
+    def cancel_input():
+        input_window.destroy()
+        root.attributes("-disable", False) #reenables the main window
+
+    root.attributes("-disable", True) #disables main window while input window is active
+    input_window = tk.Toplevel(root)
+    input_window.title("Input New Codename")
+    input_window.geometry("300x200")
+    input_window.minsize(300, 200)
+    input_window.config(bg = "lightblue")
+    
+    input_frame = tk.Frame(input_window, padx = 10, pady = 10)
+    input_frame.place(x = 75, y = 50)
+
+    input_label = tk.Label(input_frame, text = "Enter New Codename:")
+    input_label.grid(row = 0, column = 0)
+
+    input_entry = tk.Entry(input_frame, width = 20)
+    input_entry.grid(row = 1, column = 0)
+
+    input_button = tk.Button(input_frame, text = "Submit", command = submit_codename, bg = "lightgreen")
+    input_button.grid(row = 2, column = 0)
+
+    cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "lightred")
+    cancel_button.grid(row = 3, column = 0)
 
 def check_id(id):
     id = str(id)
-    #TODO create function to query the server on whether or not the input ID has a corresponding codename. If no codename, return FALSE
+    #TODO create function to query the database on whether or not the input ID has a corresponding codename. If no codename, return FALSE
     return False
 
-def add_codename(event):
-    #TODO add code to add a new user to the server with their ID and codename
+def add_codename(entry_no):
+    #TODO add code to add a new user to the database with their ID and codename
     print("woopy")
 
 def change_network():
