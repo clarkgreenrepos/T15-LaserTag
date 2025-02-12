@@ -7,7 +7,8 @@ from playerEntry import entry_loop
 from player import Player
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
-from udpSend import UdpSend #the Udp Send Class Brought to you by Tim :>)
+from udp import Udp #New class that includes udpSend and udpReceive. See udp.py
+    
 
 # Splash screen
 def display_splash():
@@ -49,12 +50,12 @@ def player_screen(): #player screen main method
     global network_button
     network_button = tk.Button(button_frame, text = "Network Address", command = change_network, bg = "blue")
     network_button.grid(row = 0, column = 0)
+  
 
     global reset_button
     reset_button = tk.Button(button_frame, text = "Reset Teams", command = reset_teams, bg = "red")
     reset_button.grid(row = 1, column = 0)
 
-    start_udp_receive_task()
 
     def create_entry_list(): #create the entry fields and append them to their respective lists. IDs should all be 6 digits. Codenames should be more than 0 but no more than 20 characters.
         for i in range(15): #RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
@@ -190,12 +191,15 @@ def add_codename(entry_no):
     #TODO add code to add a new user to the database with their ID and codename
     print("woopy")
 
+
+#Initialize ip/ports and send/receive sockets to starting values
+#TODO add a "current ip" somewhere on the program
+udp = Udp("127.0.0.1", 7501, 7500)
+
 def change_network():
-    #TODO add a function for changing the active network address
-    print("i don't wanna")
     def submit_address():
         network_address = input_entry.get()
-        print(network_address) #from this point, add the code to first check that the input address is valid and then actually change the new address.
+        udp.set_ip(network_address)
         input_window.destroy()
         enable_main()
 
@@ -208,7 +212,7 @@ def change_network():
     input_window.title("Input New Address")
     input_window.geometry("300x200")
     input_window.minsize(300, 200)
-    input_window.config(bg = "lightblue")
+    input_window.config(bg = "#ffffff")
     input_window.protocol("WM_DELETE_WINDOW", cancel_input)
     
     input_frame = tk.Frame(input_window, padx = 10, pady = 10)
@@ -225,6 +229,7 @@ def change_network():
 
     cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
     cancel_button.grid(row = 3, column = 0)
+
 
 def get_eqpid(entry_no): #prompts user for equipment id then adds it to the corresponding index in the eqpid_list
 
@@ -273,39 +278,20 @@ def character_check(codename):
     return codename.translate(translation_table) == codename
 
 
-# UDP SERVER STUFF
+#Start server
 def start_udp_receive_task():
-    # Runs UDP client on a seperate thread so tkinter is not blocked
     def run_udp():
-        asyncio.run(udp_client_receive())
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(udp.start_receiver())
 
+    
     threading.Thread(target=run_udp, daemon=True).start()
-
-class UDPHandler(asyncio.DatagramProtocol):
-    def datagram_received(self, data, addr):
-        message = data.decode().strip()
-        print(f"Received from {addr}: {message}")
-        # TODO - update GUI with received codename or handle new codename entry
-
-async def udp_client_receive(ip="127.0.0.1", port=7501):
-    loop = asyncio.get_running_loop()
-
-    print(f"Starting UDP client receive on {ip}:{port}")
-    transport, protocol = await loop.create_datagram_endpoint(
-        lambda: UDPHandler(),
-        local_addr=(ip, port)
-    )
-
-    print(f"Listening for UDP receives on {ip}:{port}")
-
-    try:
-        await asyncio.Event().wait()  # Run indefinitely
-    finally:
-        transport.close()
 
 #START GAME STUFF
 def start_game():
     #TODO create start game function that moves to the game action screen
+    start_udp_receive_task() #This works
     print("no")
     
 
@@ -319,8 +305,6 @@ root.configure(bg="#040333")
 original_icon = Image.open("img/T15_icon.png")
 icon_img = ImageTk.PhotoImage(original_icon)
 root.iconphoto(False, icon_img)
-
-network_address = None #place holder for input network address
 
 # Create a canvas to display for Splash Screen
 canvas = tk.Canvas(root, width=1280, height=720, bg="#040333", bd=0, highlightthickness=0)
