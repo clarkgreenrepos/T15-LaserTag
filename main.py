@@ -79,6 +79,9 @@ def player_screen(): #player screen main method
             codename = tk.Entry(frame, width = 20, state = 'readonly')
             codename.grid(row = i + 1, column = 5)
             codename_list.append(codename)
+        for i in range(30): #initializes all eqpid indices
+            dummyid = "0"
+            eqpid_list.append(dummyid)
         for entry in playerid_list:
             entry.bind("<Return>", get_codename) #Enter key will be bound to the ID fields
     create_entry_list()
@@ -112,7 +115,7 @@ def reset_teams(): #resets all entries in playerid_list and codename_list. Also,
 def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
     id = entry.get() #entered player id
-    if len(id) != 6: # Player IDs must always be 6 digits
+    if len(id) != 6 or not id.isdigit(): # Player IDs must always be 6 digits
         print("invalid id")
     else:
         for i, id_entry in enumerate(playerid_list):#locate which index of the playerid_list the entered id is from
@@ -126,7 +129,7 @@ def get_codename(event): #check to see if id is valid then check to see if id ma
             codename_list[entry].delete(0, tk.END)
             codename_list[entry].insert(0, "found codename")
             codename_list[entry].config(state = 'readonly')
-            
+            get_eqpid(entry)
         else:
             create_codename(entry)
 
@@ -136,7 +139,7 @@ def create_codename(entry_no):
 
     def submit_codename():
         codename = input_entry.get()
-        if 0 < len(codename) <= 20:
+        if 0 < len(codename) <= 20 and character_check(codename):
             codename_list[entry_no].config(state = 'normal')
             codename_list[entry_no].delete(0, tk.END)
             codename_list[entry_no].insert(0, codename)
@@ -144,7 +147,7 @@ def create_codename(entry_no):
             add_codename(entry_no) #This function is further down. It is supposed to give the codename and player ID to the datebase by referencing the "entry_no" (int that represents the index where the codename and id can be found in the playerid_list and codename_list)
             input_window.destroy()
             playerid_list[entry_no].config(state = "normal")
-            enable_main()
+            get_eqpid(entry_no)
         else:
             input_label.config(text = "Invalid Codename", fg = "red")
 
@@ -223,6 +226,52 @@ def change_network():
     cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
     cancel_button.grid(row = 3, column = 0)
 
+def get_eqpid(entry_no): #prompts user for equipment id then adds it to the corresponding index in the eqpid_list
+
+    def submit_eqpid():
+        eqpid = input_entry.get()
+        if len(eqpid) == 2 and eqpid.isdigit():
+            eqpid_list[entry_no] = eqpid
+            print(eqpid_list[entry_no])
+            input_window.destroy()
+            enable_main()
+        else:
+            input_label.config(text = "Invalid Equipment ID", fg = "red")
+
+    def cancel_input():
+        input_window.destroy()
+        playerid_list[entry_no].config(state = "normal")
+        playerid_list[entry_no].delete(0, tk.END)
+        codename_list[entry_no].delete(0, tk.END)
+        enable_main()
+        
+    input_window = tk.Toplevel(root)
+    input_window.title("Input Equipment ID")
+    input_window.geometry("300x200")
+    input_window.minsize(300, 200)
+    input_window.config(bg = "lightblue")
+    input_window.protocol("WM_DELETE_WINDOW", cancel_input)
+    
+    input_frame = tk.Frame(input_window, padx = 10, pady = 10)
+    input_frame.place(x = 75, y = 50)
+
+    input_label = tk.Label(input_frame, text = "Enter New Equipment ID:")
+    input_label.grid(row = 0, column = 0)
+
+    input_entry = tk.Entry(input_frame, width = 20)
+    input_entry.grid(row = 1, column = 0)
+
+    input_button = tk.Button(input_frame, text = "Submit", command = submit_eqpid, bg = "lightgreen")
+    input_button.grid(row = 2, column = 0)
+
+    cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
+    cancel_button.grid(row = 3, column = 0)
+
+def character_check(codename):
+    special_chars = r"!@#$%^&*()_+\-=\[\]{};\':\"\\|,.<>/?~"
+    translation_table = str.maketrans('', '', special_chars)
+    return codename.translate(translation_table) == codename
+
 
 # UDP SERVER STUFF
 def start_udp_receive_task():
@@ -272,8 +321,6 @@ icon_img = ImageTk.PhotoImage(original_icon)
 root.iconphoto(False, icon_img)
 
 network_address = None #place holder for input network address
-
-
 
 # Create a canvas to display for Splash Screen
 canvas = tk.Canvas(root, width=1280, height=720, bg="#040333", bd=0, highlightthickness=0)
