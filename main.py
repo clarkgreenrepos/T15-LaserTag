@@ -20,9 +20,9 @@ def remove_splash():
     canvas.delete("all")
 
 def splash_screen(): #will display splash image 3 seconds after startup, remove the image after 8 and show continue button after 12
-    root.after(0, display_splash)
-    root.after(0, remove_splash)
-    root.after(0, player_screen)
+    root.after(3000, display_splash)
+    root.after(6000, remove_splash)
+    root.after(12000, player_screen)
 
 #PLAYER SCREEN STUFF
 

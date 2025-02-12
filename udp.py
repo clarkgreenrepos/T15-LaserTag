@@ -14,7 +14,7 @@ class Udp:
         self.transport = None
     
     #Check if IP is valid. Return ip if it is, return false and error if not
-    def validate_ip(self, ip: str) -> tuple[bool, str]:
+    def validate_ip(self, ip: str):
         """Validates and returns the given IP address."""
         ip = ip.strip()
         try:
