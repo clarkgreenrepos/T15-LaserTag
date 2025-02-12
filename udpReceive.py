@@ -1,79 +1,85 @@
-# UDP File
+#this file is useless right now, keeping it just in case.
 
-# Requirements
-#   Need to set up 2 udp sockets for transmission of data to/from players
-#   Use localhost (127.0.0.1) for network address
-#   Use socket 7500 to broadcast, 7501 to receive
-#   Include functionality to be able to change network address
-#   Format of transmission will be a single integer (equipment id of player who got hit)
-#   Format of received data will be integer:integer (equipment id of player transmitting:equipment id of player hit)
+class UdpReceive:
+    #Initialize class
+    def __init__(self, ip, port):
+        self.ip = ip
+        self.port = self.ValidPort(port)
 
-# Arguments
-# 1st Custom Ip
-# 2nd Custom Port
-# if any arguments are not given they will default to the value given in the requirements
-
-import sys
-import socket
-import asyncio # this is the library necessary for async/await. https://docs.python.org/3/library/asyncio.html
-
-
-def ValidPort(input: str) -> int:
-    """Checks string if is a valid port and sends it back as an integer"""
-
-    if not (input.isdigit()) or int(input) < 0 or int(input) > 65535:
-        print("ERROR: Invalid Port '", input, "'")
-        sys.exit(-1)  # On an Invalid Ip Exit
-    return int(input)
-
-async def udpServer(ip: str, port: int):
-    """Asynchronous UDP server to receive player hit data."""
-    loop = asyncio.get_running_loop()
+    #Check if port is valid (between 0 and 65535)
+    def ValidPort(self, port: int) -> int:
+        """Checks if a port is valid and returns it as an integer."""
+        if not (0 <= int(port) < 65535):
+            print(f"ERROR: Invalid Port '{port}', setting port to default (7500)")
+            self.ip = 7500
+        return port
     
-    class UDPHandler(asyncio.DatagramProtocol):
-        def datagram_received(self, data, addr):
-            message = data.decode().strip()
-            try:
-                transmitting_id, hit_id = map(int, message.split(":"))
-                print(f"{transmitting_id} : {hit_id}")
-            except:
-                """Any case where there is an invalid transmit/hit will be handled in udpSend.py"""
+    def valid_ip(self, ip: str) -> str:
+        ip = check_ip(ip)
 
-    print(f"Starting UDP server on {ip}:{port}")
-    transport, protocol = await loop.create_datagram_endpoint(lambda: UDPHandler(), local_addr=(ip, port))
-    print("Server is live\n")
+    #Start the server
+    async def start(self):
+        """Starts the UDP server."""
+        loop = asyncio.get_running_loop()
+        
+        class UDPHandler(asyncio.DatagramProtocol):
+            def datagram_received(self, data, addr):
+                message = data.decode().strip()
+                try:
+                    transmitting_id, hit_id = map(int, message.split(":"))
+                    print(f"{transmitting_id} : {hit_id}")
+                except ValueError:
+                    pass 
+        
+        print(f"Starting UDP server on {self.ip}:{self.port}")
+        self.transport, self.protocol = await loop.create_datagram_endpoint(
+            lambda: UDPHandler(), local_addr=(self.ip, self.port)
+        )
+        print("Server is live\n")
 
-    try:
-        await asyncio.Event().wait()  # Server runs forever
-    finally:
-        transport.close()  # Close socket on exit
-
-async def main():
-    arguments = sys.argv[1:]
-    
-    ip = "127.0.0.1"  # Default IP.
-    #TODO Add functionality to change IP addresses
-
-    port = 7501       # receiving port
-
-    if arguments:
         try:
-            socket.inet_aton(arguments[0])
-            ip = arguments[0]
-        except socket.error:
-            print("Error: Invalid IP")
-            sys.exit(-1)
-    
-    if len(arguments) >= 2:
-        port = ValidPort(arguments[1])
+            await asyncio.Event().wait() 
+        finally:
+            self.stop()
 
-    server_task = asyncio.create_task(udpServer(ip, port))
-    await server_task
+    #This will stop the server from listening
+    def stop(self):
+        """Stops the UDP server."""
+        if self.transport:
+            self.transport.close()
+            print("Server stopped.")
 
-if __name__ == "__main__":
+
+    #Change port/ip with these methods
+    def set_port(this, newPort: int):
+        """sets the port"""
+        this.port = this.ValidPort(newPort)
+    def set_ip(this, newIp: str):
+        """sets the Ip"""
+        this.ip = check_ip(newIp)
+
+
+
+    #Not sure if we'll need a restart method, but I added one just incase
+    #(incase the server is listening, and the user changes the IP/Port)
+    async def restart(self, new_ip=None, new_port=None):
+        self.stop()
+        if new_ip:
+            self.ip = new_ip
+        if new_port:
+            self.port = new_port
+        await self.start()
+
+
+def check_ip(ip: str):
     try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nUDP communication stopped.")
-    
+        socket.inet_aton(ip)
+        return ip
+    except socket.error:
+        return "127.0.0.1"
 
+
+#How to use:
+#Start server-> server = UdpReceive("127.0.0.1", 7500)
+#Stop server-> server.stop()
+#Change port or ip -> server.setPort(int), server.setIp(str)

@@ -1,4 +1,6 @@
 # UDP Send File
+#this file is useless right now, keeping it just in case.
+
 
 import socket
 
@@ -8,8 +10,8 @@ class UdpSend:
     #Initializer, allows you to set a different ip or port
     def __init__(this, ip: str = "127.0.0.1", port: str = "7501"):
         """sets the ip and port and creates the socket"""
-        this.setIp(ip) #set the ip
-        this.setPort(port) # set the port
+        this.set_ip(ip) #set the ip
+        this.set_port(port) # set the port
         
         #create the socket
         this.sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
@@ -19,7 +21,7 @@ class UdpSend:
         """Checks string if is a valid port and sends it back as an integer"""
         # if the port is invalid the port is set to the default
         if not (input.isdigit()) or int(input) < 0 or int(input) > 65535:
-            print("ERROR: Invalid Port '", input, "'")
+            print("ERROR-udpSEND: Invalid Port '", input, "'")
             print("\tSetting To Default")
             return 7501 
         return int(input)
@@ -48,21 +50,19 @@ class UdpSend:
         this.sock.sendto(msgInBytes, (this.ip, this.port))
     
     #sets the port and checks if valid
-    def setPort(this, newPort: str):
+    def set_port(this, newPort: str):
         """sets the port"""
         this.port = this.ValidPort(newPort)
-    def setPort(this, newPort: int):
+    def set_port(this, newPort: int):
         """sets the port"""
         this.port = this.ValidPort(newPort)
      #sets the ip and checks if valid
-    def setIp(this, newIp: str):
+    def set_ip(this, newIp: str):
         """sets the Ip"""
         try:
             socket.inet_aton(newIp)
             this.ip = newIp
         except socket.error:
-            print("ERROR: Invalid Ip")
-            print("\tSetting To Default")
             this.ip = "127.0.0.1"
 
 
