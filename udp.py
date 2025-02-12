@@ -27,7 +27,7 @@ class Udp:
             return self.ip
         
     #Given a string checks if valid port and converts it to int
-    def validate_port(this, input: str) -> int:
+    def validate_port(self, input: str) -> int:
         """Checks string if is a valid port and sends it back as an integer"""
         # if the port is invalid the port is set to the default
         if not (input.isdigit()) or int(input) < 0 or int(input) > 65535:
