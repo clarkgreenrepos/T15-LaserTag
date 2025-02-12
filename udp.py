@@ -14,16 +14,17 @@ class Udp:
         self.transport = None
     
     #Check if IP is valid. Return ip if it is, return false and error if not
-    def validate_ip(self, ip: str) -> str:
+    def validate_ip(self, ip: str) -> tuple[bool, str]:
         """Validates and returns the given IP address."""
         ip = ip.strip()
         try:
             ipaddress.ip_address(ip)
             print(f"IP set to {ip}")
+            self.set_ip(ip)
             return ip
         except ValueError:
-            print(f"ERROR: Invalid IP '{ip}', using default 127.0.0.1")
-            return "127.0.0.1"
+            print(f"ERROR: Invalid IP '{ip}', using {self.ip}")
+            return self.ip
         
     #Given a string checks if valid port and converts it to int
     def validate_port(this, input: str) -> int:
@@ -93,7 +94,7 @@ class Udp:
     #Change/set IP
     def set_ip(self, new_ip: str):
         """Updates the IP address."""
-        self.ip = self.validate_ip(new_ip)
+        self.ip = new_ip
     
     #Change/set Port for send or receiving sockets. Don't think changing port is necessary but it's I made it anyways.
     def set_send_port(self, new_port: int):
@@ -102,6 +103,9 @@ class Udp:
     def set_recv_port(self, new_port: int):
         """Updates the receiving port."""
         self.recv_port = self.validate_port(new_port)
+    
+    def get_ip(self):
+        return self.ip
 
 # Example usage
 # udp_comm = UdpComm("127.0.0.1", 7501, 7500)

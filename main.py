@@ -1,13 +1,12 @@
 import tkinter as tk
 import asyncio
-import socket
 import threading
 from tkinter import PhotoImage
 from playerEntry import entry_loop
 from player import Player
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
-from udp import Udp #New class that includes udpSend and udpReceive. See udp.py
+from udp import * #New class that includes udpSend and udpReceive. See udp.py
     
 
 # Splash screen
@@ -21,9 +20,9 @@ def remove_splash():
     canvas.delete("all")
 
 def splash_screen(): #will display splash image 3 seconds after startup, remove the image after 8 and show continue button after 12
-    root.after(3000, display_splash)
-    root.after(8000, remove_splash)
-    root.after(12000, player_screen)
+    root.after(0, display_splash)
+    root.after(0, remove_splash)
+    root.after(0, player_screen)
 
 #PLAYER SCREEN STUFF
 
@@ -196,39 +195,62 @@ def add_codename(entry_no):
 #TODO add a "current ip" somewhere on the program
 udp = Udp("127.0.0.1", 7501, 7500)
 
+import tkinter as tk
+
 def change_network():
     def submit_address():
-        network_address = input_entry.get()
-        udp.set_ip(network_address)
+        network_address = input_entry.get().strip()  # Trim spaces
+
+        # Get the validated IP from validate_ip()
+        new_ip = udp.validate_ip(network_address)
+
+        # If input is invalid or unchanged, show an error and keep window open
+        if new_ip == udp.get_ip() and network_address != udp.get_ip():
+            error_label.config(text="Invalid input.")
+            return
+
+        # If valid and different, set new IP and close window
+        udp.set_ip(new_ip)
         input_window.destroy()
         enable_main()
 
     def cancel_input():
+        """Closes the input window and re-enables the main window."""
         input_window.destroy()
         enable_main()
 
+   
     disable_main()
     input_window = tk.Toplevel(root)
     input_window.title("Input New Address")
     input_window.geometry("300x200")
     input_window.minsize(300, 200)
-    input_window.config(bg = "#ffffff")
-    input_window.protocol("WM_DELETE_WINDOW", cancel_input)
-    
-    input_frame = tk.Frame(input_window, padx = 10, pady = 10)
-    input_frame.place(x = 75, y = 50)
+    input_window.config(bg="#ffffff")
+    input_window.protocol("WM_DELETE_WINDOW", cancel_input)  
 
-    input_label = tk.Label(input_frame, text = "Enter New Address:")
-    input_label.grid(row = 0, column = 0)
+    input_frame = tk.Frame(input_window, padx=10, pady=10)
+    input_frame.place(relx=0.5, rely=0.4, anchor="center")
 
-    input_entry = tk.Entry(input_frame, width = 20)
-    input_entry.grid(row = 1, column = 0)
+    input_label = tk.Label(input_frame, text="Enter New Address:")
+    input_label.grid(row=0, column=0, columnspan=2)
 
-    input_button = tk.Button(input_frame, text = "Submit", command = submit_address, bg = "lightgreen")
-    input_button.grid(row = 2, column = 0)
+    input_entry = tk.Entry(input_frame, width=20)
+    input_entry.grid(row=1, column=0, columnspan=2)
 
-    cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
-    cancel_button.grid(row = 3, column = 0)
+ 
+    button_frame = tk.Frame(input_frame)
+    button_frame.grid(row=2, column=0, columnspan=2, pady=5)
+
+    input_button = tk.Button(button_frame, text="Submit", command=submit_address, bg="lightgreen")
+    input_button.pack(side="left", padx=5)
+
+    cancel_button = tk.Button(button_frame, text="Cancel", command=cancel_input, bg="#E36666")
+    cancel_button.pack(side="left", padx=5)
+
+    error_label = tk.Label(input_frame, text="", fg="red", width=40, anchor="center")
+    error_label.grid(row=3, column=0, columnspan=2)
+
+
 
 
 def get_eqpid(entry_no): #prompts user for equipment id then adds it to the corresponding index in the eqpid_list
@@ -281,9 +303,7 @@ def character_check(codename):
 #Start server
 def start_udp_receive_task():
     def run_udp():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(udp.start_receiver())
+        asyncio.run(udp.start_receiver())
 
     
     threading.Thread(target=run_udp, daemon=True).start()
