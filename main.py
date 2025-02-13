@@ -2,7 +2,6 @@ import tkinter as tk
 import asyncio
 import threading
 from tkinter import PhotoImage
-from playerEntry import entry_loop
 from player import Player
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
@@ -193,7 +192,7 @@ def add_codename(entry_no):
 
 #Initialize ip/ports and send/receive sockets to starting values
 #TODO add a "current ip" somewhere on the program
-udp = Udp("127.0.0.1", 7501, 7500)
+udp = Udp("127.0.0.1", 7500, 7501)
 
 import tkinter as tk
 
@@ -261,6 +260,7 @@ def get_eqpid(entry_no): #prompts user for equipment id then adds it to the corr
             eqpid_list[entry_no] = eqpid
             print(eqpid_list[entry_no])
             input_window.destroy()
+            udp.send_message(f'{eqpid}')
             enable_main()
         else:
             input_label.config(text = "Invalid Equipment ID", fg = "red")
@@ -310,10 +310,27 @@ def start_udp_receive_task():
 
 #START GAME STUFF
 def start_game():
-    #TODO create start game function that moves to the game action screen
-    start_udp_receive_task() #This works
-    print("no")
+    # Makes sure there is at least 1 player on both teams
+    # this wont work until we make it so players are added to the player list when created
+    # redCount = 0
+    # greenCount = 0
+    # for i in range(15):
+    #     if playerList[i]:
+    #         redCount += 1
+    # for i in range(15, 30):
+    #     if playerList[i]:
+    #         greenCount += 1
     
+    # if greenCount == 0 or redCount == 0:
+    #     print("There must be a player on both teams to start")
+    #     return    
+
+    start_udp_receive_task() #This works
+    udp.send_message("202")
+
+    # Start game loop
+
+    print("Game started")    
 
 # Screen window
 root = tk.Tk()
@@ -334,7 +351,7 @@ splash_img = ImageTk.PhotoImage(original_image) #photo for the splash screen.
 playerid_list = [] #list to hold all of the player ID number entries
 codename_list = [] #list to hold all of the player codename entries
 eqpid_list = [] #list to hold all of the equipment ID entries
-playerList = [30] #master player list
+playerList = [None] * 30 #master player list
 
 splash_screen()
 

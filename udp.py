@@ -1,11 +1,12 @@
 import socket
 import ipaddress
 import asyncio
+import struct
 
 
 #I was dying copy and pasting between send/receive so I just put them both in a class.
 class Udp:
-    def __init__(self, ip="127.0.0.1", send_port=7501, recv_port=7500):
+    def __init__(self, ip="127.0.0.1", send_port=7500, recv_port=7501):
         """Initializes the UDP communication class."""
         self.ip = self.validate_ip(ip)
         self.send_port = self.validate_port(send_port)
@@ -84,12 +85,14 @@ class Udp:
         """Sends a message over UDP."""
         msg_bytes = bytes(message, encoding="utf-8")
         self.sock.sendto(msg_bytes, (self.ip, self.send_port))
+        print(f"Message sent from IP: {self.ip}, Port: {self.send_port}, Message: {message}")
 
     # Not sure exactly how sending messages will look in it's true form so might as well keep it for now.
-    def send_message(self, message: int):
-        """Sends a message over UDP."""
-        msg_bytes = bytes(message, encoding="utf-8")
-        self.sock.sendto(msg_bytes, (self.ip, self.send_port))
+    # def send_message(self, message: int):
+    #     """Sends a message over UDP."""
+    #     msg_bytes = struct.pack('!I', message)
+    #     self.sock.sendto(msg_bytes, (self.ip, self.send_port))
+    #     print(f"Message sent from IP: {self.ip}, Port: {self.send_port}, Message: {message}")
 
     #Change/set IP
     def set_ip(self, new_ip: str):
