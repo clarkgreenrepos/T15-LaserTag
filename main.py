@@ -15,16 +15,7 @@ def display_splash():
 
     canvas.create_image(center_x, center_y, anchor="nw", image=splash_img)
 
-def remove_splash():
-    canvas.delete("all")
-
-def splash_screen(): #will display splash image 3 seconds after startup, remove the image after 8 and show continue button after 12
-    root.after(3000, display_splash)
-    root.after(6000, remove_splash)
-    root.after(12000, player_screen)
-
 #PLAYER SCREEN STUFF
-
 def player_screen(): #player screen main method
     frame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for fields
     frame.place(x = (root.winfo_width() // 2) - 230, y = 100)
@@ -84,6 +75,7 @@ def player_screen(): #player screen main method
         for entry in playerid_list:
             entry.bind("<Return>", get_codename) #Enter key will be bound to the ID fields
     create_entry_list()
+   
     
 def disable_main(): #disable interactables in main window while a secondary window is active
     for i, entry in enumerate(playerid_list):
@@ -92,12 +84,14 @@ def disable_main(): #disable interactables in main window while a secondary wind
     network_button['state'] = tk.DISABLED
     reset_button['state'] = tk.DISABLED
 
-def enable_main(): #reenable interactables in main window once secondary window is gone
+
+def enable_main(): #reenable intractables in main window once secondary window is gone
     for i, entry in enumerate(playerid_list):
         entry.config(state = "normal")
     start_button['state'] = tk.NORMAL
     network_button['state'] = tk.NORMAL
     reset_button['state'] = tk.NORMAL
+
 
 def reset_teams(): #resets all entries in playerid_list and codename_list. Also, sets the elements in eqpid_list and playerList to "None"
     for i in range(len(playerid_list)):
@@ -110,6 +104,7 @@ def reset_teams(): #resets all entries in playerid_list and codename_list. Also,
         eqpid_list[i] = None
     for i in range(len(playerList)):
         playerList[i] = None
+
 
 def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
@@ -131,6 +126,7 @@ def get_codename(event): #check to see if id is valid then check to see if id ma
             get_eqpid(entry)
         else:
             create_codename(entry)
+
 
 def create_codename(entry_no):
     #create small window for entering new name
@@ -180,21 +176,17 @@ def create_codename(entry_no):
     cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
     cancel_button.grid(row = 3, column = 0)
 
+
 def check_id(id):
     id = str(id)
     #TODO create function to query the database on whether or not the input ID has a corresponding codename. If no codename, return FALSE
     return False
 
+
 def add_codename(entry_no):
     #TODO add code to add a new user to the database with their ID and codename
     print("woopy")
 
-
-#Initialize ip/ports and send/receive sockets to starting values
-#TODO add a "current ip" somewhere on the program
-udp = Udp("127.0.0.1", 7500, 7501)
-
-import tkinter as tk
 
 def change_network():
     def submit_address():
@@ -250,8 +242,6 @@ def change_network():
     error_label.grid(row=3, column=0, columnspan=2)
 
 
-
-
 def get_eqpid(entry_no): #prompts user for equipment id then adds it to the corresponding index in the eqpid_list
 
     def submit_eqpid():
@@ -294,11 +284,11 @@ def get_eqpid(entry_no): #prompts user for equipment id then adds it to the corr
     cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
     cancel_button.grid(row = 3, column = 0)
 
+
 def character_check(codename):
     special_chars = r"!@#$%^&*()_+\-=\[\]{};\':\"\\|,.<>/?~"
     translation_table = str.maketrans('', '', special_chars)
     return codename.translate(translation_table) == codename
-
 
 #Start server
 def start_udp_receive_task():
@@ -332,6 +322,10 @@ def start_game():
 
     print("Game started")    
 
+#Initialize ip/ports and send/receive sockets to starting values
+#TODO add a "current ip" somewhere on the program
+udp = Udp("127.0.0.1", 7500, 7501)
+
 # Screen window
 root = tk.Tk()
 root.title("Photon Super Duper Epic Kool Kid Laser Tag Game for Kool Kidz") # Window name
@@ -353,7 +347,10 @@ codename_list = [] #list to hold all of the player codename entries
 eqpid_list = [] #list to hold all of the equipment ID entries
 playerList = [None] * 30 #master player list
 
-splash_screen()
+#will display splash image after startup then remove the image the show player screen
+root.after(3000, display_splash)
+root.after(6000, lambda: canvas.delete("all"))
+root.after(7000, player_screen)
 
 # Run
 root.mainloop()
