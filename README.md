@@ -1,6 +1,7 @@
 <h1 align="center">Team 15 Laser Tag Software<br />
 <div align="center">
-<a href="https://github.com/clarkgreenrepos/T15-LaserTag"><img src="htthttps://github.com/clarkgreenrepos/T15-LaserTag/blob/main/img/photon_logo.png" title="Logo" style="max-width:100%;" width="128" /></a>
+<a href="https://github.com/clarkgreenrepos/T15-LaserTag">
+<img src="https://raw.githubusercontent.com/clarkgreenrepos/T15-LaserTag/refs/heads/main/img/photon_logo.png" title="Logo" style="max-width:100%" width="512" /></a>
 </div></h1>
 
 ## Language<br/>
