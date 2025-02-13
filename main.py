@@ -23,9 +23,9 @@ def player_screen(): #player screen main method
     green_label = tk.Label(frame, text = "GREEN TEAM")
     red_label.grid(row = 0, column = 2)
     green_label.grid(row = 0, column = 5)
-    id_label1 = tk.Label(frame, text = "ID No.")
+    id_label1 = tk.Label(frame, text = "P ID No.")
     id_label1.grid(row = 0, column = 1)
-    id_label2 = tk.Label(frame, text = "ID No.")
+    id_label2 = tk.Label(frame, text = "P ID No.")
     id_label2.grid(row = 0, column = 4)
 
     global button_frame
@@ -141,7 +141,6 @@ def create_codename(entry_no):
             codename_list[entry_no].config(state = 'readonly')
             add_codename(entry_no) #This function is further down. It is supposed to give the codename and player ID to the datebase by referencing the "entry_no" (int that represents the index where the codename and id can be found in the playerid_list and codename_list)
             input_window.destroy()
-            playerid_list[entry_no].config(state = "normal")
             get_eqpid(entry_no)
         else:
             input_label.config(text = "Invalid Codename", fg = "red")
@@ -302,18 +301,39 @@ def start_udp_receive_task():
 def start_game():
     # Makes sure there is at least 1 player on both teams
     # this wont work until we make it so players are added to the player list when created
-    # redCount = 0
-    # greenCount = 0
+    redCount = 0
+    greenCount = 0
     # for i in range(15):
     #     if playerList[i]:
     #         redCount += 1
     # for i in range(15, 30):
     #     if playerList[i]:
     #         greenCount += 1
+
+    def make_player_list(): # Add the contents of the 3 entry lists to the Player List
+        nonlocal redCount, greenCount
+        for i in range(30):
+            playerid = playerid_list[i].get()
+            codename = codename_list[i].get()
+            eqpid = eqpid_list[i]
+
+            # if the index of the current player is 0 - 14, red team. 15 - 29 is green team
+            if playerid != "" and i <= 14: 
+                playerList[i] = Player(playerid, codename, eqpid, 0)
+                redCount += 1
+            elif playerid != "" and 14 < i <= 29:
+                playerList[i] = Player(playerid, codename, eqpid, 1)
+                greenCount += 1
     
-    # if greenCount == 0 or redCount == 0:
-    #     print("There must be a player on both teams to start")
-    #     return    
+    make_player_list()
+
+    if greenCount == 0 or redCount == 0:
+        print("There must be a player on both teams to start")
+        return    
+
+    for i in range(30):
+        if playerList[i] != None:
+            print(f"{i}: {playerList[i].ID}, {playerList[i].Codename}, {playerList[i].EqpID}, {playerList[i].Team}")
 
     start_udp_receive_task() #This works
     udp.send_message("202")
