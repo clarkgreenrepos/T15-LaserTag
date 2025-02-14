@@ -178,15 +178,14 @@ def checkId(id):
 
 def addCodename(entryNumber):
     #TODO add code to add a new user to the database with their ID and codename
-    print("woopy")
+    print("This is where i would add a new user to the database")
 
 
 def changeNetwork():
     def submitAddress():
         networkAddress = inputEntry.get().strip()  # Trim spaces
-
-        # If input is invalid or unchanged, show an error and keep window open
-
+        
+        # try to setIp if it fails its invalid
         if not udp.setIp(networkAddress):
             errorLabel.config(text="Invalid input.")
             return
