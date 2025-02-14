@@ -185,16 +185,12 @@ def changeNetwork():
     def submitAddress():
         networkAddress = inputEntry.get().strip()  # Trim spaces
 
-        # Get the validated IP from validateIp()
-        newIp = udp.validateIp(networkAddress)
-
         # If input is invalid or unchanged, show an error and keep window open
-        if newIp == udp.getIp() and networkAddress != udp.getIp():
+
+        if not udp.setIp(networkAddress):
             errorLabel.config(text="Invalid input.")
             return
 
-        # If valid and different, set new IP and close window
-        udp.setIp(newIp)
         inputWindow.destroy()
         toggleMain(True)
 
