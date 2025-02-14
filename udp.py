@@ -6,29 +6,29 @@ import struct
 
 #I was dying copy and pasting between send/receive so I just put them both in a class.
 class Udp:
-    def __init__(self, ip="127.0.0.1", send_port=7500, recv_port=7501):
+    def __init__(self, ip="127.0.0.1", sendPort=7500, receivePort=7501):
         """Initializes the UDP communication class."""
-        self.ip = self.validate_ip(ip)
-        self.send_port = self.validate_port(send_port)
-        self.recv_port = self.validate_port(recv_port)
+        self.ip = self.validateIp(ip)
+        self.sendPort = self.validatePort(sendPort)
+        self.receivePort = self.validatePort(receivePort)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.transport = None
     
     #Check if IP is valid. Return ip if it is, return false and error if not
-    def validate_ip(self, ip: str):
+    def validateIp(self, ip: str):
         """Validates and returns the given IP address."""
         ip = ip.strip()
         try:
             ipaddress.ip_address(ip)
             print(f"IP set to {ip}")
-            self.set_ip(ip)
+            self.setIp(ip)
             return ip
         except ValueError:
             print(f"ERROR: Invalid IP '{ip}', using {self.ip}")
             return self.ip
         
     #Given a string checks if valid port and converts it to int
-    def validate_port(self, input: str) -> int:
+    def validatePort(self, input: str) -> int:
         """Checks string if is a valid port and sends it back as an integer"""
         # if the port is invalid the port is set to the default
         if not (input.isdigit()) or int(input) < 0 or int(input) > 65535:
@@ -38,7 +38,7 @@ class Udp:
         return int(input)
 
     #Given an int checks if valid port and returns it unchanged
-    def validate_port(self, port: int) -> int:
+    def validatePort(self, port: int) -> int:
         """Checks integer if is a valid port and sends it back as an integer"""
         if 0 <= port <= 65535:
             return port
@@ -47,7 +47,7 @@ class Udp:
     
 
     #Start receiving
-    async def start_receiver(self):
+    async def startReceiver(self):
         """Starts the UDP server to receive messages asynchronously."""
         loop = asyncio.get_running_loop()
         
@@ -55,25 +55,25 @@ class Udp:
             def datagram_received(self, data, addr):
                 message = data.decode().strip()
                 try:
-                    transmitting_id, hit_id = map(int, message.split(":"))
-                    print(f"Received: {transmitting_id} : {hit_id}")
+                    transmittingId, hitId = map(int, message.split(":"))
+                    print(f"Received: {transmittingId} : {hitId}")
                 except ValueError:
                     print("Invalid message received.")
                     
-        print(f"Starting UDP server on {self.ip}:{self.recv_port}")
+        print(f"Starting UDP server on {self.ip}:{self.receivePort}")
         self.transport, _ = await loop.create_datagram_endpoint(
-            lambda: UDPHandler(), local_addr=(self.ip, self.recv_port)
+            lambda: UDPHandler(), local_addr=(self.ip, self.receivePort)
         )
         print("Server is live")
 
         try:
             await asyncio.Event().wait()
         finally:
-            self.stop_receiver()
+            self.stopReceiver()
 
 
     #Stop receiving
-    def stop_receiver(self):
+    def stopReceiver(self):
         """Stops the UDP server."""
         if self.transport:
             self.transport.close()
@@ -81,36 +81,36 @@ class Udp:
 
 
     # Given a message will send it to the server
-    def send_message(self, message: str):
+    def sendMessage(self, message: str):
         """Sends a message over UDP."""
-        msg_bytes = bytes(message, encoding="utf-8")
-        self.sock.sendto(msg_bytes, (self.ip, self.send_port))
-        print(f"Message sent from IP: {self.ip}, Port: {self.send_port}, Message: {message}")
+        msgBytes = bytes(message, encoding="utf-8")
+        self.sock.sendto(msgBytes, (self.ip, self.sendPort))
+        print(f"Message sent from IP: {self.ip}, Port: {self.sendPort}, Message: {message}")
 
     # Not sure exactly how sending messages will look in it's true form so might as well keep it for now.
-    # def send_message(self, message: int):
+    # def sendMessage(self, message: int):
     #     """Sends a message over UDP."""
-    #     msg_bytes = struct.pack('!I', message)
-    #     self.sock.sendto(msg_bytes, (self.ip, self.send_port))
-    #     print(f"Message sent from IP: {self.ip}, Port: {self.send_port}, Message: {message}")
+    #     msgBytes = struct.pack('!I', message)
+    #     self.sock.sendto(msgBytes, (self.ip, self.sendPort))
+    #     print(f"Message sent from IP: {self.ip}, Port: {self.sendPort}, Message: {message}")
 
     #Change/set IP
-    def set_ip(self, new_ip: str):
+    def setIp(self, newIp: str):
         """Updates the IP address."""
-        self.ip = new_ip
+        self.ip = newIp
     
     #Change/set Port for send or receiving sockets. Don't think changing port is necessary but it's I made it anyways.
-    def set_send_port(self, new_port: int):
+    def setSendPort(self, newPort: int):
         """Updates the sending port."""
-        self.send_port = self.validate_port(new_port)
-    def set_recv_port(self, new_port: int):
+        self.sendPort = self.validatePort(newPort)
+    def setReceivePort(self, newPort: int):
         """Updates the receiving port."""
-        self.recv_port = self.validate_port(new_port)
+        self.receivePort = self.validatePort(newPort)
     
-    def get_ip(self):
+    def getIp(self):
         return self.ip
 
 # Example usage
-# udp_comm = UdpComm("127.0.0.1", 7501, 7500)
-# asyncio.run(udp_comm.start_receiver())
-# udp_comm.send_message("55:67")
+# udp = Udp("127.0.0.1", 7501, 7500)
+# asyncio.run(udp.startReceiver())
+# udp.sendMessage("55:67")
