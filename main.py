@@ -1,12 +1,14 @@
 import tkinter as tk
 import asyncio
 import threading
+import psycopg2
 from tkinter import PhotoImage
 from player import Player
 from PIL import Image, ImageTk #requires Pillow install. In terminal, type "pip3 install pillow" or "pip3 install --upgrade pillow" (use "pip" instead of "pip3" for windows.s)
                                #Pillow handles images with alpha. Will be used for images with transparency like many pngs
 from udp import * #New class that includes udpSend and udpReceive. See udp.py
     
+
 
 # Splash screen
 def display_splash():
@@ -109,23 +111,33 @@ def reset_teams(): #resets all entries in playerid_list and codename_list. Also,
 def get_codename(event): #check to see if id is valid then check to see if id matches preexisting codename. if no preexisting codename, prompt user for new codename
     entry = event.widget
     id = entry.get() #entered player id
+
     if len(id) != 6 or not id.isdigit(): # Player IDs must always be 6 digits
         print("invalid id")
+        return
+    
+    #Find the entry index
+    entry_index = None
+    for i, id_entry in enumerate(playerid_list):#locate which index of the playerid_list the entered id is from
+        if id_entry == entry:
+            print(f"id found at index {i}")
+            entry_index = i
+            break
+
+    if entry_index is None:
+        print("Error: Could not determine index")
+        return
+
+    if check_id(id):
+        #TODO create function that querys the database for the corresponding ID. Should return the codename in the form of a string
+        print("codename found")
+        codename_list[entry].config(state = 'normal')
+        codename_list[entry].delete(0, tk.END)
+        codename_list[entry].insert(0, "found codename")
+        codename_list[entry].config(state = 'readonly')
+        get_eqpid(entry)
     else:
-        for i, id_entry in enumerate(playerid_list):#locate which index of the playerid_list the entered id is from
-            if id_entry == event.widget:
-                print(f"id found at index {i}")
-                entry = i
-        if check_id(id):
-            #TODO create function that querys the database for the corresponding ID. Should return the codename in the form of a string
-            print("codename found")
-            codename_list[entry].config(state = 'normal')
-            codename_list[entry].delete(0, tk.END)
-            codename_list[entry].insert(0, "found codename")
-            codename_list[entry].config(state = 'readonly')
-            get_eqpid(entry)
-        else:
-            create_codename(entry)
+        create_codename(entry)
 
 
 def create_codename(entry_no):
@@ -176,16 +188,62 @@ def create_codename(entry_no):
     cancel_button = tk.Button(input_frame, text = "Cancel", command = cancel_input, bg = "#E36666")
     cancel_button.grid(row = 3, column = 0)
 
+# Establish database connection
+def connect_db():
+    try:
+        conn = psycopg2.connect(
+            dbname = "photon_",
+            user = "student",
+            password = "student",
+            host = "host",
+            port = "5432"
+        )
+        return conn
+    except psycopg2.Error as e:
+        print("Error connecting to database")
+        return None
+
 
 def check_id(id):
     id = str(id)
+
+    conn = connect_db()
+    if conn is None:
+        return False
+    
+    cur = conn.cursor()
+    cur.execute("select codename from players where id = %s;", (id,))
+    result = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+
     #TODO create function to query the database on whether or not the input ID has a corresponding codename. If no codename, return FALSE
-    return False
+    return result is not None
 
 
 def add_codename(entry_no):
     #TODO add code to add a new user to the database with their ID and codename
-    print("woopy")
+    player_id = playerid_list[entry_no].get()
+    codename = codename_list[entry_no].get()
+
+    conn = connect_db()
+    if conn is None:
+        return
+    
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO players (id, codename) VALUES (%s, %s) on CONFLICT (id) DO NOTHING;",
+            (player_id, codename)
+        )
+        conn.commit()
+    except psycopg2.Error as e:
+        print("Error inserting data")
+    finally:
+        cur.close()
+        conn.close()
 
 
 def change_network():
