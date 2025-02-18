@@ -1,5 +1,6 @@
 class Player:
-    def __init__(self, ID, Codename, EqpID):
+    def __init__(self, ID, Codename, EqpID, Team):
         self.ID = ID
         self.Codename = Codename
         self.EqpID = EqpID
+        self.Team = Team
