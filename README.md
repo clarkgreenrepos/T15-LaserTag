@@ -7,7 +7,7 @@ Laser Tag Software for CSCE 35103 - Software Engineering Section 001
 
 ## Installing Libraries<br/>
 Intalling Pip<br/>
-- Pip is a package manager for Python that allows easy installs of libraries that may be required during development.To install, follow these steps:<br/>
+- Pip is a package manager for Python that allows easy installs of libraries that may be required during development. To install, follow these steps:<br/>
 	- In linux, open the terminal and enter `sudo apt update`, then `sudo apt install python3-pip`.
 	- Enter password if prompted
 	- To check that pip is properly installed, enter `pip3 --version`. If pip is installed, the version number and other information will be displayed.
