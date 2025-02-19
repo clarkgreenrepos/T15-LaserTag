@@ -5,6 +5,19 @@
 </div></h1>
 Laser Tag Software for CSCE 35103 - Software Engineering Section 001
 
+## Installing Libraries<br/>
+Intalling Pip<br/>
+- Pip is a package manager for Python that allows easy installs of libraries that may be required during development.To install, follow these steps:<br/>
+	- In linux, open the terminal and enter `sudo apt update`, then `sudo apt install python3-pip`.
+	- Enter password if prompted
+	- To check that pip is properly installed, enter `pip3 --version`. If pip is installed, the version number and other information will be displayed.
+
+Installing libraries<br/>
+- Using pip, we will now install the required libraries. Most of the libraries used in this program come standard with Python but some need to be installed separately. The libraries we are going to install are "Tkinter", "psycopg2", and "Pillow".
+	- For Tkinter, we actually won't use pip but, instead, enter `sudo apt-get install python3-tk` into the terminal. Tkinter may already be installed as it is a common graphics library so, this is more of a "just in case" step.
+	- For psycopg2, enter `pip3 install psycopg2`.
+	- For Pillow, enter `pip3 install Pillow`.
+
 ## How To Run<br/>
 Run `python3 main.py` In terminal<br/>
 - A window will open and after `3` seconds the splash screen will appear, then disappear after another `3` Seconds, finally after `1` second the player screen is displayed.<br/>
