@@ -30,6 +30,9 @@ def playerScreen(): #player screen main method
     idLabel2 = tk.Label(frame, text = "P ID No.")
     idLabel2.grid(row = 0, column = 4)
 
+    root.bind('<F5>', lambda event: resetTeams()) # Bind keys
+    root.bind('<F12>', lambda event: startGame())
+
     global buttonFrame
     buttonFrame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for buttons
     buttonFrame.place(x = (root.winfo_width() // 2) + 170, y = 100)
@@ -42,7 +45,6 @@ def playerScreen(): #player screen main method
     networkButton = tk.Button(buttonFrame, text = "Network Address", command = changeNetwork, bg = "blue")
     networkButton.grid(row = 0, column = 0)
   
-
     global resetButton
     resetButton = tk.Button(buttonFrame, text = "Reset Teams", command = resetTeams, bg = "red")
     resetButton.grid(row = 1, column = 0)
@@ -87,6 +89,8 @@ def toggleMain(on: bool):
     startButton['state'] = newButtonState
     networkButton['state'] = newButtonState
     resetButton['state'] = newButtonState
+    root.bind('<F5>', lambda event: resetTeams()) if on == True else root.unbind('<F5>')
+    root.bind('<F12>', lambda event: startGame()) if on == True else root.unbind('<F12>')
     
 
 def resetTeams(): #resets all entries in playerIdList and codenameList. Also, sets the elements in equipmentIdList and playerList to "None"
@@ -112,7 +116,7 @@ def getCodename(event): #check to see if id is valid then check to see if id mat
     
     #Find the entry index
     entry_index = None
-    for i, id_entry in enumerate(playerid_list):#locate which index of the playerid_list the entered id is from
+    for i, id_entry in enumerate(playerIdList):#locate which index of the playerid_list the entered id is from
         if id_entry == entry:
             print(f"id found at index {i}")
             entry_index = i
@@ -122,18 +126,15 @@ def getCodename(event): #check to see if id is valid then check to see if id mat
         print("Error: Could not determine index")
         return
 
-    if check_id(id):
+    if checkId(id):
         #TODO create function that querys the database for the corresponding ID. Should return the codename in the form of a string
         print("codename found")
-        codename_list[entry].config(state = 'normal')
-        codename_list[entry].delete(0, tk.END)
-        codename_list[entry].insert(0, "found codename")
-        codename_list[entry].config(state = 'readonly')
-        get_eqpid(entry)
+        codenameList[entry].config(state = 'normal')
+        codenameList[entry].delete(0, tk.END)
+        codenameList[entry].insert(0, "found codename")
+        codenameList[entry].config(state = 'readonly')
+        getEquipmentId(entry)
     else:
-<<<<<<< HEAD
-        create_codename(entry)
-=======
         for i, idEntry in enumerate(playerIdList):#locate which index of the playerIdList the entered id is from
             if idEntry == event.widget:
                 print(f"id found at index {i}")
@@ -148,7 +149,6 @@ def getCodename(event): #check to see if id is valid then check to see if id mat
             getEquipmentId(entry)
         else:
             createCodename(entry)
->>>>>>> 46b505b2826f4e7799a2de108c82a76d283aa66d
 
 
 def createCodename(entryNumber):
@@ -215,7 +215,7 @@ def connect_db():
 
 
 def checkId(id):
-    id = str(id)
+    """ id = str(id)
 
     conn = connect_db()
     if conn is None:
@@ -230,14 +230,14 @@ def checkId(id):
 
 
     #TODO create function to query the database on whether or not the input ID has a corresponding codename. If no codename, return FALSE
-    return result is not None
+    return result is not None"""
+    return False
 
 
 def addCodename(entryNumber):
     #TODO add code to add a new user to the database with their ID and codename
-<<<<<<< HEAD
-    player_id = playerid_list[entry_no].get()
-    codename = codename_list[entry_no].get()
+    player_id = playerIdList[entryNumber].get()
+    codename = codenameList[entryNumber].get()
 
     conn = connect_db()
     if conn is None:
@@ -255,9 +255,6 @@ def addCodename(entryNumber):
     finally:
         cur.close()
         conn.close()
-=======
-    print("This is where i would add a new user to the database")
->>>>>>> 46b505b2826f4e7799a2de108c82a76d283aa66d
 
 
 def changeNetwork():
@@ -405,6 +402,10 @@ def startGame():
 
     startUdpReceiveTask() #This works
     udp.sendMessage("202")
+
+    # Unbind bound keys
+    root.unbind('<F5>')
+    root.unbind('<F12>')
 
     # Start game loop
 
