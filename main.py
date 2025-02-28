@@ -33,21 +33,17 @@ def playerScreen(): #player screen main method
     root.bind('<F5>', lambda event: resetTeams()) # Bind keys
     root.bind('<F12>', lambda event: startGame())
 
-    global buttonFrame
-    buttonFrame = tk.Frame(root, padx = 10, pady = 10) #Creates grid for buttons
-    buttonFrame.place(x = (root.winfo_width() // 2) + 170, y = 100)
-
     global startButton
-    startButton = tk.Button(buttonFrame, text = "START GAME", command = startGame, bg = "green")
-    startButton.grid(row = 2, column = 0)
+    startButton = tk.Button(frame, text = "START GAME", command = startGame, bg = "green")
+    startButton.grid(row = 2, column = 6)
 
     global networkButton
-    networkButton = tk.Button(buttonFrame, text = "Network Address", command = changeNetwork, bg = "blue")
-    networkButton.grid(row = 0, column = 0)
+    networkButton = tk.Button(frame, text = "Network Address", command = changeNetwork, bg = "blue")
+    networkButton.grid(row = 0, column = 6)
   
     global resetButton
-    resetButton = tk.Button(buttonFrame, text = "Reset Teams", command = resetTeams, bg = "red")
-    resetButton.grid(row = 1, column = 0)
+    resetButton = tk.Button(frame, text = "Reset Teams", command = resetTeams, bg = "red")
+    resetButton.grid(row = 1, column = 6)
 
 
     def createEntryList(): #create the entry fields and append them to their respective lists. IDs should all be 6 digits. Codenames should be more than 0 but no more than 20 characters.
