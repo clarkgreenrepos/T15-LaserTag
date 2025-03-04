@@ -123,33 +123,33 @@ def getCodename(event): #check to see if id is valid then check to see if id mat
         return
 
     if checkId(id):
-        #TODO create function that querys the database for the corresponding ID. Should return the codename in the form of a string
         print("codename found")
-        codenameList[entry].config(state = 'normal')
-        codenameList[entry].delete(0, tk.END)
-        codenameList[entry].insert(0, "found codename")
-        codenameList[entry].config(state = 'readonly')
-        getEquipmentId(entry)
+        codename = getCodenameFromDB(id)
+        codenameList[entry_index].config(state = 'normal')
+        codenameList[entry_index].delete(0, tk.END)
+        codenameList[entry_index].insert(0, codename)
+        codenameList[entry_index].config(state = 'readonly')
+        getEquipmentId(entry_index)
     else:
         for i, idEntry in enumerate(playerIdList):#locate which index of the playerIdList the entered id is from
             if idEntry == event.widget:
                 print(f"id found at index {i}")
                 entry = i
         if checkId(id):
-            #TODO create function that querys the database for the corresponding ID. Should return the codename in the form of a string
             print("codename found")
-            codenameList[entry].config(state = 'normal')
-            codenameList[entry].delete(0, tk.END)
-            codenameList[entry].insert(0, "found codename")
-            codenameList[entry].config(state = 'readonly')
-            getEquipmentId(entry)
+            codename = getCodenameFromDB(id)
+            codenameList[entry_index].config(state = 'normal')
+            codenameList[entry_index].delete(0, tk.END)
+            codenameList[entry_index].insert(0, codename)
+            codenameList[entry_index].config(state = 'readonly')
+            getEquipmentId(entry_index)
         else:
-            createCodename(entry)
+            createCodename(entry_index)
 
 
 def createCodename(entryNumber):
     #create small window for entering new name
-    print(f"I'll do index {entryNumber} now")
+    print(f"Creating codename at ID {entryNumber}")
 
     def submitCodename():
         codename = inputEntry.get()
@@ -198,10 +198,10 @@ def createCodename(entryNumber):
 def connect_db():
     try:
         conn = psycopg2.connect(
-            dbname = "photon_",
+            dbname = "photon",
             user = "student",
             password = "student",
-            host = "host",
+            host = "localhost",
             port = "5432"
         )
         return conn
@@ -211,7 +211,7 @@ def connect_db():
 
 
 def checkId(id):
-    """ id = str(id)
+    id = str(id)
 
     conn = connect_db()
     if conn is None:
@@ -224,10 +224,12 @@ def checkId(id):
     cur.close()
     conn.close()
 
-
-    #TODO create function to query the database on whether or not the input ID has a corresponding codename. If no codename, return FALSE
-    return result is not None"""
-    return False
+    if result is not None:
+        print(f"ID {id} found in database with codename: {result[0]}")
+        return True
+    else:
+        print(f"ID {id} not found in the database.")
+        return False
 
 
 def addCodename(entryNumber):
@@ -242,15 +244,37 @@ def addCodename(entryNumber):
     cur = conn.cursor()
     try:
         cur.execute(
-            "INSERT INTO players (id, codename) VALUES (%s, %s) on CONFLICT (id) DO NOTHING;",
-            (player_id, codename)
+            "INSERT INTO players (id, codename) SELECT %s, %s WHERE NOT EXISTS (SELECT 1 FROM players WHERE id = %s)",
+            (player_id, codename, player_id)
         )
         conn.commit()
     except psycopg2.Error as e:
-        print("Error inserting data")
+        print("Error inserting data", e)
     finally:
         cur.close()
         conn.close()
+
+
+def getCodenameFromDB(player_id):
+    """Fetch the codename for a given player ID from the database."""
+    conn = connect_db()
+    if conn is None:
+        print("Database connection failed")
+        return None
+
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT codename FROM players WHERE id = %s;", (player_id,))
+        result = cur.fetchone()
+        if result:
+            return result[0]  # Extract the codename from the tuple
+    except psycopg2.Error as e:
+        print("Error retrieving codename:", e)
+    finally:
+        cur.close()
+        conn.close()
+
+    return None  # Should not happen, since the function assumes the codename exists
 
 
 def changeNetwork():
