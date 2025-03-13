@@ -3,7 +3,6 @@ import asyncio
 import threading
 import psycopg2
 import os
-import time
 
 from tkinter import PhotoImage
 from player import Player
