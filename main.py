@@ -457,7 +457,7 @@ def preGameErrorCheck():
 
     if greenCount == 0 or redCount == 0:
         print("There must be a player on both teams to start")
-        #return
+        return
     
     
     #remove player screen to show countdown
@@ -487,7 +487,7 @@ def startGame():
 
     print("Game started")
 
-#counts down From Given Number
+#counts down From Given Number then starts the game
 def countDown(startingNumber=30):
     #get all numbers and sort them
     files = os.listdir("img/Numbers")
