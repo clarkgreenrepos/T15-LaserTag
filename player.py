@@ -4,3 +4,5 @@ class Player:
         self.Codename = Codename
         self.EqpID = EqpID
         self.Team = Team
+        self.Score = 0
+        self.Base = False

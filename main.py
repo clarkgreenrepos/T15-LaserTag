@@ -15,6 +15,7 @@ from PIL import (
 from udp import *  # New class that includes udpSend and udpReceive. See udp.py
 
 
+
 # Splash screen
 def displaySplash():
     centerX = (root.winfo_width() - originalImage.width) // 2
@@ -92,6 +93,48 @@ def playerScreen():  # player screen main method
 
     createEntryList()
 
+
+
+def gameScreen():
+    global redGameLabels, greenGameLabels, actionList
+    root = tk.Tk()
+    root.title("Team Layout")
+    root.configure(bg="black") 
+
+    # Create frames for each column
+    redFrame = tk.Frame(root, bg="red")
+    redFrame.grid(row=0, column=0, rowspan=15, padx=2, pady=2)
+
+    middleFrame = tk.Frame(root, bg="black")
+    middleFrame.grid(row=0, column=1, rowspan=15, padx=2, pady=2)
+
+    greenFrame = tk.Frame(root, bg="green")
+    greenFrame.grid(row=0, column=2, rowspan=15, padx=2, pady=2)
+
+    # Labels for RED and GREEN columns with transparent background
+    tk.Label(redFrame, text="RED", font=("Arial", 14, "bold"), pady=5, bg="red", fg="white", highlightthickness=0).grid(row=0, column=0)
+    tk.Label(greenFrame, text="GREEN", font=("Arial", 14, "bold"), pady=5, bg="green", fg="white", highlightthickness=0).grid(row=0, column=0)
+
+    # Create 15 empty placeholders under RED, MIDDLE, and GREEN columns
+    for i in range(1, 16):
+        # Red column
+        redLabel = tk.Label(redFrame, text="", width=30, relief="flat", bg="red", fg="white", highlightthickness=0)
+        redLabel.grid(row=i, column=0, padx=2, pady=2)
+        redGameLabels.append(redLabel)  
+
+        # Green column
+        greenLabel = tk.Label(greenFrame, text="", width=30, relief="flat", bg="green", fg="white", highlightthickness=0)
+        greenLabel.grid(row=i, column=0, padx=2, pady=2)
+        greenGameLabels.append(greenLabel)  
+
+        # Action column
+        actionLabel = tk.Label(middleFrame, text="", width=30, relief="flat", bg="black", fg="white", highlightthickness=0)
+        actionLabel.grid(row=i, column=0, padx=2, pady=2)
+        actionList.append(actionLabel)
+
+    root.mainloop()
+
+  
 
 def toggleMain(on: bool):
     newConfigState = "normal" if on == True else "readonly"
@@ -427,15 +470,8 @@ def startUdpReceiveTask():
 # Pre Game Error Checking for valid game
 def preGameErrorCheck():
     # Makes sure there is at least 1 player on both teams
-    # this wont work until we make it so players are added to the player list when created
     redCount = 0
     greenCount = 0
-    # for i in range(15):
-    #     if playerList[i]:
-    #         redCount += 1
-    # for i in range(15, 30):
-    #     if playerList[i]:
-    #         greenCount += 1
 
     def makePlayerList():  # Add the contents of the 3 entry lists to the Player List
         nonlocal redCount, greenCount
@@ -483,8 +519,8 @@ def startGame():
     root.unbind("<F12>")
 
     # Start game loop
-
     print("Game started")
+    gameScreen()
 
 #counts down From Given Number then starts the game
 def countDown(startingNumber=30):
@@ -528,7 +564,6 @@ def countDown(startingNumber=30):
 
 
 # Initialize ip/ports and send/receive sockets to starting values
-# TODO add a "current ip" somewhere on the program
 udp = Udp("127.0.0.1", 7500, 7501)
 
 # Screen window
@@ -551,6 +586,10 @@ playerIdList = [] #list to hold all of the player ID number entries
 codenameList = [] #list to hold all of the player codename entries
 equipmentIdList = [] #list to hold all of the equipment ID entries
 playerList = [None] * 30 #master player list
+redGameLabels = []
+greenGameLabels = []
+actionList = []
+
 
 #will display splash image after startup then remove the image the show player screen
 root.after(3000, displaySplash)
