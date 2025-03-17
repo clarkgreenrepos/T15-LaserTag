@@ -99,7 +99,7 @@ def gameScreen():
     global redGameLabels, greenGameLabels, actionList
     root = tk.Tk()
     root.title("Team Layout")
-    root.configure(bg="black") 
+    root.configure(bg="black")
 
     # Create frames for each column
     redFrame = tk.Frame(root, bg="red")
@@ -111,28 +111,38 @@ def gameScreen():
     greenFrame = tk.Frame(root, bg="green")
     greenFrame.grid(row=0, column=2, rowspan=15, padx=2, pady=2)
 
-    # Labels for RED and GREEN columns with transparent background
-    tk.Label(redFrame, text="RED", font=("Arial", 14, "bold"), pady=5, bg="red", fg="white", highlightthickness=0).grid(row=0, column=0)
-    tk.Label(greenFrame, text="GREEN", font=("Arial", 14, "bold"), pady=5, bg="green", fg="white", highlightthickness=0).grid(row=0, column=0)
+    # Labels for RED and GREEN columns
+    tk.Label(redFrame, text="RED", font=("Arial", 14, "bold"), pady=5, bg="red", fg="white").grid(row=0, column=0)
+    tk.Label(greenFrame, text="GREEN", font=("Arial", 14, "bold"), pady=5, bg="green", fg="white").grid(row=0, column=0)
 
-    # Create 15 empty placeholders under RED, MIDDLE, and GREEN columns
+    # Create placeholders under RED, MIDDLE, and GREEN columns
     for i in range(1, 16):
-        # Red column
-        redLabel = tk.Label(redFrame, text="", width=30, relief="flat", bg="red", fg="white", highlightthickness=0)
+        # Red team labels
+        redLabel = tk.Label(redFrame, text="", width=30, relief="flat", bg="red", fg="white")
         redLabel.grid(row=i, column=0, padx=2, pady=2)
-        redGameLabels.append(redLabel)  
+        redGameLabels.append(redLabel)
 
-        # Green column
-        greenLabel = tk.Label(greenFrame, text="", width=30, relief="flat", bg="green", fg="white", highlightthickness=0)
+        # Green team labels
+        greenLabel = tk.Label(greenFrame, text="", width=30, relief="flat", bg="green", fg="white")
         greenLabel.grid(row=i, column=0, padx=2, pady=2)
-        greenGameLabels.append(greenLabel)  
+        greenGameLabels.append(greenLabel)
 
-        # Action column
-        actionLabel = tk.Label(middleFrame, text="", width=30, relief="flat", bg="black", fg="white", highlightthickness=0)
+        # Action column labels
+        actionLabel = tk.Label(middleFrame, text="", width=30, relief="flat", bg="black", fg="white")
         actionLabel.grid(row=i, column=0, padx=2, pady=2)
         actionList.append(actionLabel)
 
+    # Populate labels with player IDs
+    for i in range(15):
+        if i < len(playerList) and playerList[i] is not None:
+            redGameLabels[i].config(text=playerList[i].ID)
+
+    for i in range(15, 30):
+        if i < len(playerList) and playerList[i] is not None:
+            greenGameLabels[i - 15].config(text=playerList[i].ID)
+
     root.mainloop()
+
 
   
 
