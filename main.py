@@ -15,7 +15,6 @@ from PIL import (
 from udp import *  # New class that includes udpSend and udpReceive. See udp.py
 
 
-
 # Splash screen
 def displaySplash():
     centerX = (root.winfo_width() - originalImage.width) // 2
@@ -23,69 +22,75 @@ def displaySplash():
 
     canvas.create_image(centerX, centerY, anchor="nw", image=splashImage)
 
-
 # PLAYER SCREEN STUFF
 def playerScreen():  # player screen main method
     frame = tk.Frame(
         root, padx=10, pady=10, name="playerScreen"
     )  # Creates grid for fields
-    frame.place(x=(root.winfo_width() // 2) - 230, y=100)
-    redLabel = tk.Label(frame, text="RED TEAM")
-    greenLabel = tk.Label(frame, text="GREEN TEAM")
+    
+    #frame for all of the inputs
+    inputs = tk.Frame(frame)
+    inputs.grid(row=0, column=0)
+    #frame For Controls
+    controls = tk.Frame(frame,  pady=20)
+    controls.grid(row=1, column=0)
+    
+    frame.place(in_=root, anchor="c", relx=.5, rely=.5)
+    redLabel = tk.Label(inputs, text="RED TEAM")
+    greenLabel = tk.Label(inputs, text="GREEN TEAM")
     redLabel.grid(row=0, column=2)
     greenLabel.grid(row=0, column=5)
-    idLabel1 = tk.Label(frame, text="P ID No.")
+    idLabel1 = tk.Label(inputs, text="P ID No.")
     idLabel1.grid(row=0, column=1)
-    idLabel2 = tk.Label(frame, text="P ID No.")
+    idLabel2 = tk.Label(inputs, text="P ID No.")
     idLabel2.grid(row=0, column=4)
 
     root.bind("<F5>", lambda event: resetTeams())  # Bind keys
     root.bind("<F12>", lambda event: preGameErrorCheck())
 
     global startButton
-    startButton = tk.Button(frame, text="START GAME", command=preGameErrorCheck, bg="green")
-    startButton.grid(row=2, column=6)
+    startButton = tk.Button(controls, text="START GAME", command=preGameErrorCheck, bg="green")
+    startButton.grid(row=0, column=2)
 
     global networkButton
     networkButton = tk.Button(
-        frame, text="Network Address", command=changeNetwork, bg="blue"
+        controls, text="Network Address", command=changeNetwork, bg="blue"
     )
-    networkButton.grid(row=0, column=6)
+    networkButton.grid(row=0, column=0)
 
     global resetButton
-    resetButton = tk.Button(frame, text="Reset Teams", command=resetTeams, bg="red")
-    resetButton.grid(row=1, column=6)
+    resetButton = tk.Button(controls, text="Reset Teams", command=resetTeams, bg="red")
+    resetButton.grid(row=0, column=4)
 
     def createEntryList():  # create the entry fields and append them to their respective lists. IDs should all be 6 digits. Codenames should be more than 0 but no more than 20 characters.
-        for i in range(
-            15
-        ):  # RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
-            entryNo = tk.Label(frame, width=2, text=f"{i + 1}")
+        for i in range(15):  # RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
+            entryNo = tk.Label(inputs, width=2, text=f"{i + 1}")
             entryNo.grid(row=i + 1, column=0)
 
-            playerId = tk.Entry(frame, width=6)
+            playerId = tk.Entry(inputs, width=6)
             playerId.grid(row=i + 1, column=1)
             playerIdList.append(playerId)
 
-            codename = tk.Entry(frame, width=20, state="readonly")
+            codename = tk.Entry(inputs, width=20, state="readonly")
             codename.grid(row=i + 1, column=2)
             codenameList.append(codename)
-        for i in range(
-            15
-        ):  # GREEN TEAM entry fields. index 15 - 29 in the codename and player ID lists
-            entryNo = tk.Label(frame, width=2, text=f"{i + 1}")
+            
+        for i in range(15):  # GREEN TEAM entry fields. index 15 - 29 in the codename and player ID lists
+            entryNo = tk.Label(inputs, width=2, text=f"{i + 1}")
             entryNo.grid(row=i + 1, column=3)
 
-            playerId = tk.Entry(frame, width=6)
+            playerId = tk.Entry(inputs, width=6)
             playerId.grid(row=i + 1, column=4)
             playerIdList.append(playerId)
 
-            codename = tk.Entry(frame, width=20, state="readonly")
+            codename = tk.Entry(inputs, width=20, state="readonly")
             codename.grid(row=i + 1, column=5)
             codenameList.append(codename)
+            
         for i in range(30):  # initializes all eqpid indices
             dummyId = "0"
             equipmentIdList.append(dummyId)
+            
         for entry in playerIdList:
             entry.bind(
                 "<Return>", getCodename
@@ -93,8 +98,7 @@ def playerScreen():  # player screen main method
 
     createEntryList()
 
-
-
+#game Screen
 def gameScreen():
     global redGameLabels, greenGameLabels, actionList
     root = tk.Tk()
@@ -143,8 +147,6 @@ def gameScreen():
 
     root.mainloop()
 
-
-  
 
 def toggleMain(on: bool):
     newConfigState = "normal" if on == True else "readonly"
@@ -278,7 +280,6 @@ def createCodename(entryNumber):
         inputFrame, text="Cancel", command=cancelInput, bg="#E36666"
     )
     cancelButton.grid(row=3, column=0)
-
 
 # Establish database connection
 def connect_db():
@@ -468,14 +469,12 @@ def characterCheck(codename):
     translationTable = str.maketrans("", "", specialChars)
     return codename.translate(translationTable) == codename
 
-
 # Start server
 def startUdpReceiveTask():
     def runUdp():
         asyncio.run(udp.startReceiver())
 
     threading.Thread(target=runUdp, daemon=True).start()
-
 
 # Pre Game Error Checking for valid game
 def preGameErrorCheck():
@@ -511,7 +510,6 @@ def preGameErrorCheck():
             widget.destroy()
     #Begin Countdown
     countDown(30)
-
 
 # START GAME STUFF
 def startGame():

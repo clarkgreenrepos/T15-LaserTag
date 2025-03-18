@@ -35,7 +35,6 @@ Run `python3 main.py` In terminal<br/>
 	- if you want to remove all players click the Reset teams button
 	- if you want to change the ip click the `network address` button
 - to start click `start Game`
-	- Not implemented
  
 <br/><br/>
 
