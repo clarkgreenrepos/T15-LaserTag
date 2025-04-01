@@ -188,6 +188,7 @@ def getCodename(
 
     if len(id) != 6 or not id.isdigit():  # Player IDs must always be 6 digits
         print("invalid id")
+        messagebox.showwarning(title="Invalid ID", message="Id must be a 6 digits long number")
         return
 
     # Find the entry index
