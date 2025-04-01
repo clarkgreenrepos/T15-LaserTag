@@ -6,3 +6,13 @@ class Player:
         self.Team = Team
         self.Score = 0
         self.Base = False
+    def printPlayer(self):
+        print(self.ID)
+        print(self.Codename)
+        print(self.EqpID)
+        print(self.Team)
+        print(self.Score)
+        print(self.Base)
+        print("\n")
+        
+        

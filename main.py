@@ -493,12 +493,13 @@ def preGameErrorCheck():
             equipmentId = equipmentIdList[i]
 
             # if the index of the current player is 0 - 14, red team. 15 - 29 is green team
-            if playerId != "" and i <= 14:
+            if equipmentId != "0" and i <= 14:
                 playerList[i] = Player(playerId, codename, equipmentId, 0)
                 redCount += 1
-            elif playerId != "" and 14 < i <= 29:
+            elif equipmentId != "0" and 14 < i <= 29:
                 playerList[i] = Player(playerId, codename, equipmentId, 1)
                 greenCount += 1
+
 
     makePlayerList()
 
