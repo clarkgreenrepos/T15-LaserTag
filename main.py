@@ -5,6 +5,7 @@ import psycopg2
 import os
 
 from tkinter import PhotoImage
+from tkinter import messagebox
 from player import Player
 from PIL import (
     Image,
@@ -24,26 +25,34 @@ def displaySplash():
 
 # PLAYER SCREEN STUFF
 def playerScreen():  # player screen main method
-    frame = tk.Frame(
-        root, padx=10, pady=10, name="playerScreen"
-    )  # Creates grid for fields
+    frame = tk.Frame(root, name="playerScreen")  # Creates grid for fields
+    frame.place(in_=root, anchor="c", relx=.5, rely=.5)
     
     #frame for all of the inputs
-    inputs = tk.Frame(frame)
+    inputs = tk.Frame(frame, bg="yellow") #if you see yellow this is unintentional
     inputs.grid(row=0, column=0)
-    #frame For Controls
-    controls = tk.Frame(frame,  pady=20)
-    controls.grid(row=1, column=0)
+
+    #The input frame is divided into two smaller fames for each team
+    redFrame = tk.Frame(inputs, padx=10, pady=10, bg="red")
+    redFrame.grid(row=0, column=0)
+    greenFrame = tk.Frame(inputs, padx=10, pady=10, bg="green")
+    greenFrame.grid(row=0, column=1)
     
-    frame.place(in_=root, anchor="c", relx=.5, rely=.5)
-    redLabel = tk.Label(inputs, text="RED TEAM")
-    greenLabel = tk.Label(inputs, text="GREEN TEAM")
+    #red Team Labels 
+    redLabel = tk.Label(redFrame, text="RED TEAM", bg="red")
     redLabel.grid(row=0, column=2)
-    greenLabel.grid(row=0, column=5)
-    idLabel1 = tk.Label(inputs, text="P ID No.")
+    idLabel1 = tk.Label(redFrame, text="P ID No.", bg="red")
     idLabel1.grid(row=0, column=1)
-    idLabel2 = tk.Label(inputs, text="P ID No.")
-    idLabel2.grid(row=0, column=4)
+    
+    #Green Team Labels
+    greenLabel = tk.Label(greenFrame, text="GREEN TEAM", bg="green")
+    greenLabel.grid(row=0, column=2)
+    idLabel2 = tk.Label(greenFrame, text="P ID No.", bg="green")
+    idLabel2.grid(row=0, column=1)
+    
+    #frame For Controls
+    controls = tk.Frame(frame, pady=20)
+    controls.grid(row=1, column=0)
 
     root.bind("<F5>", lambda event: resetTeams())  # Bind keys
     root.bind("<F12>", lambda event: preGameErrorCheck())
@@ -53,66 +62,60 @@ def playerScreen():  # player screen main method
     startButton.grid(row=0, column=2)
 
     global networkButton
-    networkButton = tk.Button(
-        controls, text="Network Address", command=changeNetwork, bg="blue"
-    )
+    networkButton = tk.Button(controls, text="Network Address", command=changeNetwork, bg="blue")
     networkButton.grid(row=0, column=0)
 
     global resetButton
     resetButton = tk.Button(controls, text="Reset Teams", command=resetTeams, bg="red")
     resetButton.grid(row=0, column=4)
 
-    def createEntryList():  # create the entry fields and append them to their respective lists. IDs should all be 6 digits. Codenames should be more than 0 but no more than 20 characters.
-        for i in range(15):  # RED TEAM entry fields. index 0 - 14 in the codename and player ID lists
-            entryNo = tk.Label(inputs, width=2, text=f"{i + 1}")
+    # create the entry fields and append them to their respective lists. IDs should all be 6 digits. Codenames should be more than 0 but no more than 20 characters.
+    for j in range(2):
+        color = ["red", "green"]
+        currentFrame = [redFrame,greenFrame]
+        # RED TEAM entry fields. index 0 - 14 in the codename and player ID lists 
+        # GREEN TEAM entry fields. index 15 - 29 in the codename and player ID lists
+        for i in range(15):  
+            entryNo = tk.Label(currentFrame[j], width=2, text=f"{i + 1}",bg=color[j])
             entryNo.grid(row=i + 1, column=0)
 
-            playerId = tk.Entry(inputs, width=6)
+            playerId = tk.Entry(currentFrame[j], width=6, highlightbackground=color[j])
             playerId.grid(row=i + 1, column=1)
             playerIdList.append(playerId)
 
-            codename = tk.Entry(inputs, width=20, state="readonly")
+            codename = tk.Entry(currentFrame[j], width=20, state="readonly", highlightbackground=color[j], readonlybackground="#E0E0E0", justify="center")
             codename.grid(row=i + 1, column=2)
+            if(i == 0):
+                codename.config(state="normal")
+                codename.insert(0, "<--- Enter ID & Press Enter")
+                codename.config(state="readonly")
+            
             codenameList.append(codename)
             
-        for i in range(15):  # GREEN TEAM entry fields. index 15 - 29 in the codename and player ID lists
-            entryNo = tk.Label(inputs, width=2, text=f"{i + 1}")
-            entryNo.grid(row=i + 1, column=3)
-
-            playerId = tk.Entry(inputs, width=6)
-            playerId.grid(row=i + 1, column=4)
-            playerIdList.append(playerId)
-
-            codename = tk.Entry(inputs, width=20, state="readonly")
-            codename.grid(row=i + 1, column=5)
-            codenameList.append(codename)
+    for i in range(30):  # initializes all eqpid indices
+        dummyId = "0"
+        equipmentIdList.append(dummyId)
             
-        for i in range(30):  # initializes all eqpid indices
-            dummyId = "0"
-            equipmentIdList.append(dummyId)
-            
-        for entry in playerIdList:
-            entry.bind(
-                "<Return>", getCodename
-            )  # Enter key will be bound to the ID fields
+    for entry in playerIdList:
+        entry.bind("<Return>", getCodename)  # Enter key will be bound to the ID fields
 
-    createEntryList()
 
 #game Screen
 def gameScreen():
     global redGameLabels, greenGameLabels, actionList
-    root = tk.Tk()
+    
+    mainFrame = tk.Frame(root, padx=10, pady=10, bg="black",highlightbackground="white", highlightthickness=5)
+    mainFrame.place(in_=root, anchor="c", relx=.5, rely=.5)
     root.title("Team Layout")
-    root.configure(bg="black")
 
     # Create frames for each column
-    redFrame = tk.Frame(root, bg="red")
+    redFrame = tk.Frame(mainFrame, bg="red")
     redFrame.grid(row=0, column=0, rowspan=15, padx=2, pady=2)
 
-    middleFrame = tk.Frame(root, bg="black")
+    middleFrame = tk.Frame(mainFrame, bg="black")
     middleFrame.grid(row=0, column=1, rowspan=15, padx=2, pady=2)
 
-    greenFrame = tk.Frame(root, bg="green")
+    greenFrame = tk.Frame(mainFrame, bg="green")
     greenFrame.grid(row=0, column=2, rowspan=15, padx=2, pady=2)
 
     # Labels for RED and GREEN columns
@@ -501,6 +504,7 @@ def preGameErrorCheck():
 
     if greenCount == 0 or redCount == 0:
         print("There must be a player on both teams to start")
+        messagebox.showwarning(title="Error", message="There must be a player on both teams to start")
         return
     
     
@@ -600,9 +604,9 @@ actionList = []
 
 
 #will display splash image after startup then remove the image the show player screen
-root.after(3000, displaySplash)
-root.after(6000, lambda: canvas.delete("all"))
-root.after(7000, playerScreen)
+root.after(1000, displaySplash)
+root.after(3000, lambda: canvas.delete("all"))
+root.after(3500, playerScreen)
 
 # Run
 root.mainloop()
