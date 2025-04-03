@@ -141,6 +141,8 @@ def gameScreen():
         actionLabel.grid(row=i, column=0, padx=2, pady=2)
         actionList.append(actionLabel)
 
+    udp.sendMessage("202")
+
     # Populate labels with player IDs
     root.after(1000, updatePlayers)
 
@@ -543,8 +545,6 @@ def startGame():
             )
 
     startUdpReceiveTask()  # This works
-    time.sleep(1)
-    udp.sendMessage("202")
 
     # Unbind bound keys
     root.unbind("<F5>")
@@ -595,8 +595,69 @@ def countDown(startingNumber=30):
 
     root.after(startingNumber*1000, complete)
 
-def handleRecieve(msg):
+def handleRecieve(msg): 
     print(f"Processing message: {msg}")
+    
+    if ":" in msg:
+        parts = msg.split(":")
+        if len(parts) == 2:
+            shooter, shot = parts  # Extract shooter and shot IDs
+            actionLabelUpdate(shooter, shot)
+            updateScore(shooter, shot)
+            udp.sendMessage(shot)
+        else:
+            print("Invalid message format")
+    else:
+        print("Unrecognized message format")
+
+
+def getPlayerFromEqpID(EqpID):
+    for player in playerList:
+        if player != None:
+            if player.EqpID == EqpID:
+                return player
+
+def updateScore(shooterID, shotID):
+    # get player from ID
+    shooter = getPlayerFromEqpID(shooterID)
+    if shotID != "43" and shotID != "53":
+        shot = getPlayerFromEqpID(shotID)
+
+    # Case 1: Shooter shot base
+    if (shooter.Team == 0 and shotID == "43") or (shooter.Team == 1 and shotID == "53"):
+        shooter.Score += 100
+    # Case 2: Shooter shot opposite team
+    elif (shooter.Team == 0 and shot.Team == 1) or (shooter.Team == 1 and shot.Team == 0):
+        shooter.Score += 10
+    # Case 3: Shooter shot same team
+    elif shooter.Team == shot.Team and shooter.Score >= 0:
+        shooter.Score -= 10 
+    
+
+def actionLabelUpdate(shooterID, shotID):
+    # Shift labels up 1
+    for i in range(len(actionList) - 1):
+        actionList[i].config(text=actionList[i + 1].cget("text"))
+    
+    shooterName = "Unknown"
+    shotName = "Unknown"
+
+    # Retrieve codenames from IDs
+    shooter = getPlayerFromEqpID(shooterID)
+    shot = getPlayerFromEqpID(shotID)
+    shooterName = shooter.Codename
+    if shotID != "43" and shotID != "53":
+        shotName = shot.Codename
+
+    if shotID == "53":
+        shotName = "the red base"
+    if shotID == "43":
+        shotName = "the green base"
+
+    message = f"{shooterName} shot {shotName}"
+
+    # Add new message to bottom
+    actionList[14].config(text=message)
 
 
 
