@@ -13,6 +13,11 @@ class Udp:
         self.receivePort = self.validatePort(receivePort)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.transport = None
+        # New idk how it works
+        self.on_message = None
+
+    def set_message_callback(self, callback):
+        self.on_message = callback
 
     # Check if IP is valid. Return ip if it is, return false and error if not
     def validateIp(self, ip: str) -> bool:
@@ -57,17 +62,24 @@ class Udp:
         loop = asyncio.get_running_loop()
 
         class UDPHandler(asyncio.DatagramProtocol):
+            def __init__(self, on_message_callback):
+                self.on_message = on_message_callback
+            
             def datagram_received(self, data, addr):
                 message = data.decode().strip()
-                try:
-                    transmittingId, hitId = map(int, message.split(":"))
-                    print(f"Received: {transmittingId} : {hitId}")
-                except ValueError:
-                    print("Invalid message received.")
+                # try:
+                #     transmittingId, hitId = map(int, message.split(":"))
+                #     print(f"Received: {transmittingId} : {hitId}")
+                # except ValueError:
+                #     print("Invalid message received.")
+                print(f"Received: {message} from {addr}")
+
+                if self.on_message:  # Call user-defined callback
+                    self.on_message(message)
 
         print(f"Starting UDP server on {self.ip}:{self.receivePort}")
         self.transport, _ = await loop.create_datagram_endpoint(
-            lambda: UDPHandler(), local_addr=(self.ip, self.receivePort)
+            lambda: UDPHandler(self.on_message), local_addr=(self.ip, self.receivePort)
         )
         print("Server is live")
 

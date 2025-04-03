@@ -3,6 +3,8 @@ import asyncio
 import threading
 import psycopg2
 import os
+import time
+import sys
 
 from tkinter import PhotoImage
 from tkinter import messagebox
@@ -140,15 +142,22 @@ def gameScreen():
         actionList.append(actionLabel)
 
     # Populate labels with player IDs
+    root.after(1000, updatePlayers)
+
+    root.mainloop()
+
+def updatePlayers():
+    # TODO: Create function that sorts playerlist for red and green by score and call it here
+
     for i in range(15):
         if i < len(playerList) and playerList[i] is not None:
-            redGameLabels[i].config(text=playerList[i].ID)
+            redGameLabels[i].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
 
     for i in range(15, 30):
         if i < len(playerList) and playerList[i] is not None:
-            greenGameLabels[i - 15].config(text=playerList[i].ID)
+            greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
 
-    root.mainloop()
+    root.after(1000, updatePlayers)
 
 
 def toggleMain(on: bool):
@@ -287,6 +296,10 @@ def createCodename(entryNumber):
 
 # Establish database connection
 def connect_db():
+    # bypass database if "test" passed in on compile
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
+        return
+    
     try:
         conn = psycopg2.connect(
             dbname="photon",
@@ -302,6 +315,10 @@ def connect_db():
 
 
 def checkId(id):
+    # bypass database if "test" passed in on compile
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
+        return False
+    
     id = str(id)
 
     conn = connect_db()
@@ -526,6 +543,7 @@ def startGame():
             )
 
     startUdpReceiveTask()  # This works
+    time.sleep(1)
     udp.sendMessage("202")
 
     # Unbind bound keys
@@ -538,6 +556,10 @@ def startGame():
 
 #counts down From Given Number then starts the game
 def countDown(startingNumber=30):
+    # Bypass countdown if "test" passed in
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
+        startGame()
+    
     #get all numbers and sort them
     files = os.listdir("img/Numbers")
     files.sort()
@@ -573,12 +595,16 @@ def countDown(startingNumber=30):
 
     root.after(startingNumber*1000, complete)
 
+def handleRecieve(msg):
+    print(f"Processing message: {msg}")
+
 
 
 
 
 # Initialize ip/ports and send/receive sockets to starting values
 udp = Udp("127.0.0.1", 7500, 7501)
+udp.set_message_callback(handleRecieve)
 
 # Screen window
 root = tk.Tk()
@@ -606,9 +632,12 @@ actionList = []
 
 
 #will display splash image after startup then remove the image the show player screen
-root.after(1000, displaySplash)
-root.after(3000, lambda: canvas.delete("all"))
-root.after(3500, playerScreen)
+if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
+    playerScreen()
+else:
+    root.after(1000, displaySplash)
+    root.after(3000, lambda: canvas.delete("all"))
+    root.after(3500, playerScreen)
 
 # Run
 root.mainloop()
