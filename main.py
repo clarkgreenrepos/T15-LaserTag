@@ -106,7 +106,7 @@ def playerScreen():  # player screen main method
 
 #game Screen
 def gameScreen():
-    global redGameLabels, greenGameLabels, actionList
+    global redGameLabels, greenGameLabels, actionList, gameTime
     
     mainFrame = tk.Frame(root, padx=10, pady=10, bg="black",highlightbackground="white", highlightthickness=5)
     mainFrame.place(in_=root, anchor="c", relx=.5, rely=.5)
@@ -145,6 +145,9 @@ def gameScreen():
 
     udp.sendMessage("202")
 
+    # Start a 6 min countdown
+    gameTime = 360
+
     # Populate labels with player IDs
     root.after(1000, updatePlayers)
 
@@ -176,6 +179,9 @@ def gameMusic():
 
 def updatePlayers():
     # TODO: Create function that sorts playerlist for red and green by score and call it here
+    global gameTime
+    print(f"{gameTime} seconds remaining")
+    gameTime -= 1
 
     for i in range(15):
         if i < len(playerList) and playerList[i] is not None:
@@ -716,7 +722,7 @@ playerList = [None] * 30 #master player list
 redGameLabels = []
 greenGameLabels = []
 actionList = []
-
+gameTime = 0
 
 #will display splash image after startup then remove the image the show player screen
 if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
