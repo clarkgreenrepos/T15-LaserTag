@@ -5,6 +5,8 @@ import psycopg2
 import os
 import time
 import sys
+import random
+import pygame
 
 from tkinter import PhotoImage
 from tkinter import messagebox
@@ -147,6 +149,30 @@ def gameScreen():
     root.after(1000, updatePlayers)
 
     root.mainloop()
+
+def gameMusic():
+    number = random.randint(1, 8)
+    pygame.mixer.init()
+    if number == 1:
+        pygame.mixer.music.load('sound/Track01.mp3')
+    elif number == 2:
+        pygame.mixer.music.load('sound/Track02.mp3')
+    elif number == 3:
+        pygame.mixer.music.load('sound/Track03.mp3')
+    elif number == 4:
+        pygame.mixer.music.load('sound/Track04.mp3')
+    elif number == 5:
+        pygame.mixer.music.load('sound/Track05.mp3')
+    elif number == 6:
+        pygame.mixer.music.load('sound/Track06.mp3')
+    elif number == 7:
+        pygame.mixer.music.load('sound/Track07.mp3')
+    elif number == 8:
+        pygame.mixer.music.load('sound/Track08.mp3')
+    
+    pygame.mixer.music.play()
+
+    gameScreen()
 
 def updatePlayers():
     # TODO: Create function that sorts playerlist for red and green by score and call it here
@@ -552,7 +578,7 @@ def startGame():
 
     # Start game loop
     print("Game started")
-    gameScreen()
+    gameMusic()
 
 #counts down From Given Number then starts the game
 def countDown(startingNumber=30):
