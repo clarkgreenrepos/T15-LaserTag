@@ -29,6 +29,8 @@ def displaySplash():
 
 # PLAYER SCREEN STUFF
 def playerScreen():  # player screen main method
+    canvas.delete("all")
+
     frame = tk.Frame(root, name="playerScreen")  # Creates grid for fields
     frame.place(in_=root, anchor="c", relx=.5, rely=.5)
     
@@ -106,7 +108,7 @@ def playerScreen():  # player screen main method
 
 #game Screen
 def gameScreen():
-    global redGameLabels, greenGameLabels, actionList, gameTime
+    global redGameLabels, greenGameLabels, actionList, gameTime, timerLabel
     
     mainFrame = tk.Frame(root, padx=10, pady=10, bg="black",highlightbackground="white", highlightthickness=5)
     mainFrame.place(in_=root, anchor="c", relx=.5, rely=.5)
@@ -125,6 +127,8 @@ def gameScreen():
     # Labels for RED and GREEN columns
     tk.Label(redFrame, text="RED", font=("Arial", 14, "bold"), pady=5, bg="red", fg="white").grid(row=0, column=0)
     tk.Label(greenFrame, text="GREEN", font=("Arial", 14, "bold"), pady=5, bg="green", fg="white").grid(row=0, column=0)
+    timerLabel = tk.Label(middleFrame, text=f"{gameTime} s", font=("Arial", 20, "bold"), pady=5, bg="black", fg="green")
+    timerLabel.grid(row=0, column=0)
 
     # Create placeholders under RED, MIDDLE, and GREEN columns
     for i in range(1, 16):
@@ -143,15 +147,17 @@ def gameScreen():
         actionLabel.grid(row=i, column=0, padx=2, pady=2)
         actionList.append(actionLabel)
 
-    udp.sendMessage("202")
+    if udp:
+        try:
+            udp.sendMessage("202")
+        except Exception as e:
+            print(f"UDP send failded: {e}")
 
     # Start a 6 min countdown
     gameTime = 360
 
     # Populate labels with player IDs
-    root.after(1000, updatePlayers)
-
-    root.mainloop()
+    update_task_id = root.after(1000, updatePlayers)
 
 def gameMusic():
     number = random.randint(1, 8)
@@ -179,19 +185,61 @@ def gameMusic():
 
 def updatePlayers():
     # TODO: Create function that sorts playerlist for red and green by score and call it here
-    global gameTime
+    global gameTime, timerLabel, update_task_id
     print(f"{gameTime} seconds remaining")
-    gameTime -= 1
+    if root.winfo_exists():
+        if gameTime == 0:
+            gameEnd()
+            return
+        gameTime -= 1
+        if timerLabel:
+            timerLabel.config(text=f"{gameTime} s")
 
-    for i in range(15):
-        if i < len(playerList) and playerList[i] is not None:
-            redGameLabels[i].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
+        for i in range(15):
+            if i < len(playerList) and playerList[i] is not None:
+                redGameLabels[i].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
 
-    for i in range(15, 30):
-        if i < len(playerList) and playerList[i] is not None:
-            greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
+        for i in range(15, 30):
+            if i < len(playerList) and playerList[i] is not None:
+                greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
 
-    root.after(1000, updatePlayers)
+        update_task_id = root.after(1000, updatePlayers)
+    else:
+        update_task_id = None
+
+def gameEnd():
+    global redGameLabels, greenGameLabels, actionList, timerLabel, update_task_id, countdown_task_id
+    print("kill game")
+    for widget in root.winfo_children():
+        if widget != canvas:
+            widget.destroy()
+
+    redGameLabels.clear()
+    greenGameLabels.clear()
+    actionList.clear()
+    timerLabel = None
+    playerIdList.clear()
+    codenameList.clear()
+    equipmentIdList.clear()
+    for i in range(len(playerList)):
+        playerList[i] = None
+
+    if update_task_id:
+        root.after_cancel(update_task_id)
+        update_task_id = None
+    if countdown_task_id:
+        root.after_cancel(countdown_task_id)
+        countdown_task_id = None
+
+    pygame.mixer.music.stop()
+
+    if udp and hasattr(udp, 'transport'):
+        try:
+            udp.transport.close()
+        except:
+            pass
+
+    playerScreen()
 
 
 def toggleMain(on: bool):
@@ -588,10 +636,11 @@ def startGame():
 
 #counts down From Given Number then starts the game
 def countDown(startingNumber=30):
+    global countdown_task_id
     # Bypass countdown if "test" passed in
     if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
         startGame()
-    
+
     #get all numbers and sort them
     files = os.listdir("img/Numbers")
     files.sort()
@@ -614,18 +663,21 @@ def countDown(startingNumber=30):
         startGame()
     #place on screen then remove
     def count(i, x):
-        image_id = canvas.create_image(x, centerY, anchor="center", image=image_list[i])
-        root.after((1000), lambda image_id: canvas.delete(image_id), image_id)
+        if root.winfo_exists():
+            image_id = canvas.create_image(x, centerY, anchor="center", image=image_list[i])
+            root.after((1000), lambda image_id: canvas.delete(image_id), image_id)
 
     #for 30 through 1 
-    for i in range(startingNumber, 0, -1):
-        numberOfDigits = len(str(i))
-        #for each digit in number place on screen for 1 second then remove
-        for j in range(numberOfDigits):
-            x = (-(200*(numberOfDigits-1)/2) + (j*200) + centerX)
-            root.after((startingNumber - i) * 1000, lambda i, x: count(i, x), int(str(i)[j]), x)
-
-    root.after(startingNumber*1000, complete)
+    if root.winfo_exists():
+        for i in range(startingNumber, 0, -1):
+            numberOfDigits = len(str(i))
+            #for each digit in number place on screen for 1 second then remove
+            for j in range(numberOfDigits):
+                x = (-(200*(numberOfDigits-1)/2) + (j*200) + centerX)
+                root.after((startingNumber - i) * 1000, lambda i, x: count(i, x), int(str(i)[j]), x)
+        countdown_task_id = root.after(startingNumber * 1000, complete)
+    else:
+        print("Countdown aborted: Window Closed")
 
 def handleRecieve(msg): 
     print(f"Processing message: {msg}")
@@ -723,6 +775,9 @@ redGameLabels = []
 greenGameLabels = []
 actionList = []
 gameTime = 0
+update_task_id = None
+countdown_task_id = None
+timerLabel = None
 
 #will display splash image after startup then remove the image the show player screen
 if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
