@@ -47,13 +47,13 @@ def playerScreen():  # player screen main method
     #red Team Labels 
     redLabel = tk.Label(redFrame, text="RED TEAM", bg="red")
     redLabel.grid(row=0, column=2)
-    idLabel1 = tk.Label(redFrame, text="P ID No.", bg="red")
+    idLabel1 = tk.Label(redFrame, text="P ID No.\n(6 Digits)", bg="red")
     idLabel1.grid(row=0, column=1)
     
     #Green Team Labels
     greenLabel = tk.Label(greenFrame, text="GREEN TEAM", bg="green")
     greenLabel.grid(row=0, column=2)
-    idLabel2 = tk.Label(greenFrame, text="P ID No.", bg="green")
+    idLabel2 = tk.Label(greenFrame, text="P ID No.\n(6 Digits)", bg="green")
     idLabel2.grid(row=0, column=1)
     
     #frame For Controls
@@ -279,7 +279,7 @@ def getCodename(
 
     if len(id) != 6 or not id.isdigit():  # Player IDs must always be 6 digits
         print("invalid id")
-        messagebox.showwarning(title="Invalid ID", message="Id must be a 6 digits long number")
+        messagebox.showwarning(title="Invalid ID", message="Id must be 6 digits")
         return
 
     # Find the entry index
