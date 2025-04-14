@@ -185,11 +185,13 @@ def updatePlayers():
 
     for i in range(15):
         if i < len(playerList) and playerList[i] is not None:
-            redGameLabels[i].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
+            Bsign = " B " if playerList[i].Base == True else " "
+            redGameLabels[i].config(text=f"{playerList[i].Codename} {Bsign}- {playerList[i].Score}")
 
     for i in range(15, 30):
         if i < len(playerList) and playerList[i] is not None:
-            greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} - {playerList[i].Score}")
+            Bsign = " B " if playerList[i].Base == True else " "
+            greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} {Bsign} -  {playerList[i].Score}")
 
     root.after(1000, updatePlayers)
 
