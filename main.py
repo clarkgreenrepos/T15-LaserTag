@@ -188,22 +188,22 @@ def updatePlayers():
     global gameTime, timerLabel, update_task_id
     print(f"{gameTime} seconds remaining")
     if root.winfo_exists():
-        if gameTime == 0:
+        if gameTime <= 0:
             gameEnd()
             return
         gameTime -= 1
         if timerLabel:
             timerLabel.config(text=f"{int(gameTime/60)}:{"{:02d}".format(gameTime % 60)}")
 
-    for i in range(15):
-        if i < len(playerList) and playerList[i] is not None:
-            Bsign = " B " if playerList[i].Base == True else " "
-            redGameLabels[i].config(text=f"{playerList[i].Codename} {Bsign}- {playerList[i].Score}")
+        for i in range(15):
+            if i < len(playerList) and playerList[i] is not None:
+                Bsign = " B " if playerList[i].Base == True else " "
+                redGameLabels[i].config(text=f"{playerList[i].Codename} {Bsign}- {playerList[i].Score}")
 
-    for i in range(15, 30):
-        if i < len(playerList) and playerList[i] is not None:
-            Bsign = " B " if playerList[i].Base == True else " "
-            greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} {Bsign} -  {playerList[i].Score}")
+        for i in range(15, 30):
+            if i < len(playerList) and playerList[i] is not None:
+                Bsign = " B " if playerList[i].Base == True else " "
+                greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} {Bsign} -  {playerList[i].Score}")
 
         update_task_id = root.after(1000, updatePlayers)
     else:
@@ -713,6 +713,7 @@ def updateScore(shooterID, shotID):
     # Case 1: Shooter shot base
     if (shooter.Team == 0 and shotID == "43") or (shooter.Team == 1 and shotID == "53"):
         shooter.Score += 100
+        shooter.Base = True
     # Case 2: Shooter shot opposite team
     elif (shooter.Team == 0 and shot.Team == 1) or (shooter.Team == 1 and shot.Team == 0):
         shooter.Score += 10
