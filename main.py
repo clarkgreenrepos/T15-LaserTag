@@ -127,7 +127,7 @@ def gameScreen():
     # Labels for RED and GREEN columns
     tk.Label(redFrame, text="RED", font=("Arial", 14, "bold"), pady=5, bg="red", fg="white").grid(row=0, column=0)
     tk.Label(greenFrame, text="GREEN", font=("Arial", 14, "bold"), pady=5, bg="green", fg="white").grid(row=0, column=0)
-    timerLabel = tk.Label(middleFrame, text=f"{int(gameTime/60)}:{"{:02d}".format(gameTime % 60)}", font=("Arial", 20, "bold"), pady=5, bg="black", fg="green")
+    timerLabel = tk.Label(middleFrame, text=f"{int(gameTime/60)}:{(gameTime % 60)}", font=("Arial", 20, "bold"), pady=5, bg="black", fg="green")
     timerLabel.grid(row=0, column=0)
 
     # Create placeholders under RED, MIDDLE, and GREEN columns
@@ -193,7 +193,7 @@ def updatePlayers():
             return
         gameTime -= 1
         if timerLabel:
-            timerLabel.config(text=f"{int(gameTime/60)}:{"{:02d}".format(gameTime % 60)}")
+            timerLabel.config(text=f"{int(gameTime/60)}:{(gameTime % 60)}")
 
         for i in range(15):
             if i < len(playerList) and playerList[i] is not None:
