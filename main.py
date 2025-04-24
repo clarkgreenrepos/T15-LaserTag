@@ -109,55 +109,62 @@ def playerScreen():  # player screen main method
 #game Screen
 def gameScreen():
     global redGameLabels, greenGameLabels, actionList, gameTime, timerLabel
-    
-    mainFrame = tk.Frame(root, padx=10, pady=10, bg="black",highlightbackground="white", highlightthickness=5)
+
+    mainFrame = tk.Frame(root, padx=10, pady=10, bg="black", highlightbackground="white", highlightthickness=5)
     mainFrame.place(in_=root, anchor="c", relx=.5, rely=.5)
-    root.title("Team Layout")
+    root.title("Photon Game Arena")
 
-    # Create frames for each column
-    redFrame = tk.Frame(mainFrame, bg="red")
-    redFrame.grid(row=0, column=0, rowspan=15, padx=2, pady=2)
+    # Top Label
+    tk.Label(mainFrame, text="Top Scorers", font=("Arial", 18, "bold"), fg="white", bg="black").grid(row=0, column=0, columnspan=3, pady=(0, 10))
 
-    middleFrame = tk.Frame(mainFrame, bg="black")
-    middleFrame.grid(row=0, column=1, rowspan=15, padx=2, pady=2)
+    # Red team frame
+    redFrame = tk.Frame(mainFrame, bg="red", padx=10, pady=10)
+    redFrame.grid(row=1, column=0, padx=5)
+    tk.Label(redFrame, text="RED TEAM", font=("Arial", 14, "bold"), bg="red", fg="white").pack()
+    redGameLabels.clear()
+    for _ in range(5):
+        label = tk.Label(redFrame, text="", width=30, font=("Arial", 12), relief="flat", bg="red", fg="white")
+        label.pack(pady=2)
+        redGameLabels.append(label)
 
-    greenFrame = tk.Frame(mainFrame, bg="green")
-    greenFrame.grid(row=0, column=2, rowspan=15, padx=2, pady=2)
+    # Middle frame for actions
+    middleFrame = tk.Frame(mainFrame, bg="black", padx=10, pady=10)
+    middleFrame.grid(row=1, column=1, padx=5)
+    timerLabel = tk.Label(middleFrame, text=f"{int(gameTime/60)}:{gameTime % 60:02}", font=("Arial", 20, "bold"), bg="black", fg="green")
+    timerLabel.pack(pady=5)
+    actionList.clear()
+    for _ in range(5):
+        label = tk.Label(middleFrame, text="", width=40, font=("Arial", 10), relief="flat", bg="black", fg="white")
+        label.pack(pady=2)
+        actionList.append(label)
 
-    # Labels for RED and GREEN columns
-    tk.Label(redFrame, text="RED", font=("Arial", 14, "bold"), pady=5, bg="red", fg="white").grid(row=0, column=0)
-    tk.Label(greenFrame, text="GREEN", font=("Arial", 14, "bold"), pady=5, bg="green", fg="white").grid(row=0, column=0)
-    timerLabel = tk.Label(middleFrame, text=f"{int(gameTime/60)}:{(gameTime % 60)}", font=("Arial", 20, "bold"), pady=5, bg="black", fg="green")
-    timerLabel.grid(row=0, column=0)
+    # Green team frame
+    greenFrame = tk.Frame(mainFrame, bg="green", padx=10, pady=10)
+    greenFrame.grid(row=1, column=2, padx=5)
+    tk.Label(greenFrame, text="GREEN TEAM", font=("Arial", 14, "bold"), bg="green", fg="white").pack()
+    greenGameLabels.clear()
+    for _ in range(5):
+        label = tk.Label(greenFrame, text="", width=30, font=("Arial", 12), relief="flat", bg="green", fg="white")
+        label.pack(pady=2)
+        greenGameLabels.append(label)
 
-    # Create placeholders under RED, MIDDLE, and GREEN columns
-    for i in range(1, 16):
-        # Red team labels
-        redLabel = tk.Label(redFrame, text="", width=30, relief="flat", bg="red", fg="white")
-        redLabel.grid(row=i, column=0, padx=2, pady=2)
-        redGameLabels.append(redLabel)
-
-        # Green team labels
-        greenLabel = tk.Label(greenFrame, text="", width=30, relief="flat", bg="green", fg="white")
-        greenLabel.grid(row=i, column=0, padx=2, pady=2)
-        greenGameLabels.append(greenLabel)
-
-        # Action column labels
-        actionLabel = tk.Label(middleFrame, text="", width=30, relief="flat", bg="black", fg="white")
-        actionLabel.grid(row=i, column=0, padx=2, pady=2)
-        actionList.append(actionLabel)
+    # Bottom score summary
+    tk.Label(mainFrame, text="Score Summary", font=("Arial", 14, "bold"), fg="white", bg="black").grid(row=2, column=0, columnspan=3, pady=(10, 0))
+    global redTeamScoreLabel, greenTeamScoreLabel
+    redTeamScoreLabel = tk.Label(mainFrame, text="Red Score: 0", font=("Arial", 12), bg="black", fg="red")
+    redTeamScoreLabel.grid(row=3, column=0)
+    greenTeamScoreLabel = tk.Label(mainFrame, text="Green Score: 0", font=("Arial", 12), bg="black", fg="green")
+    greenTeamScoreLabel.grid(row=3, column=2)
 
     if udp:
         try:
             udp.sendMessage("202")
         except Exception as e:
-            print(f"UDP send failded: {e}")
+            print(f"UDP send failed: {e}")
 
-    # Start a 6 min countdown
     gameTime = 360
-
-    # Populate labels with player IDs
     update_task_id = root.after(1000, updatePlayers)
+
 
 def gameMusic():
     number = random.randint(1, 8)
@@ -184,30 +191,45 @@ def gameMusic():
     gameScreen()
 
 def updatePlayers():
-    # TODO: Create function that sorts playerlist for red and green by score and call it here
     global gameTime, timerLabel, update_task_id
+
     print(f"{gameTime} seconds remaining")
-    if root.winfo_exists():
-        if gameTime <= 0:
-            gameEnd()
-            return
-        gameTime -= 1
-        if timerLabel:
-            timerLabel.config(text=f"{int(gameTime/60)}:{(gameTime % 60)}")
-
-        for i in range(15):
-            if i < len(playerList) and playerList[i] is not None:
-                Bsign = " B " if playerList[i].Base == True else " "
-                redGameLabels[i].config(text=f"{playerList[i].Codename} {Bsign}- {playerList[i].Score}")
-
-        for i in range(15, 30):
-            if i < len(playerList) and playerList[i] is not None:
-                Bsign = " B " if playerList[i].Base == True else " "
-                greenGameLabels[i - 15].config(text=f"{playerList[i].Codename} {Bsign} -  {playerList[i].Score}")
-
-        update_task_id = root.after(1000, updatePlayers)
-    else:
+    if not root.winfo_exists():
         update_task_id = None
+        return
+
+    if gameTime <= 0:
+        gameEnd()
+        return
+
+    gameTime -= 1
+    if timerLabel:
+        timerLabel.config(text=f"{int(gameTime/60)}:{gameTime % 60:02}")
+
+    redPlayers = sorted([p for p in playerList[:15] if p], key=lambda x: x.Score, reverse=True)[:5]
+    greenPlayers = sorted([p for p in playerList[15:] if p], key=lambda x: x.Score, reverse=True)[:5]
+
+    for i in range(5):
+        if i < len(redPlayers):
+            Bsign = "B " if redPlayers[i].Base else ""
+            redGameLabels[i].config(
+                text=f"{Bsign}{redPlayers[i].Codename} - {redPlayers[i].Score}",
+                font=("Arial", 12, "bold") if redPlayers[i].Base else ("Arial", 12)
+)
+        else:
+            redGameLabels[i].config(text="")
+
+        if i < len(greenPlayers):
+            Bsign = "B " if greenPlayers[i].Base else ""
+            greenGameLabels[i].config(
+                text=f"{Bsign}{greenPlayers[i].Codename} - {greenPlayers[i].Score}",
+                font=("Arial", 12, "bold") if greenPlayers[i].Base else ("Arial", 12)
+)
+        else:
+            greenGameLabels[i].config(text="")
+
+    update_task_id = root.after(1000, updatePlayers)
+    updateTeamScores()
 
 def gameEnd():
     global redGameLabels, greenGameLabels, actionList, timerLabel, update_task_id, countdown_task_id
@@ -677,7 +699,9 @@ def countDown(startingNumber=30):
             #for each digit in number place on screen for 1 second then remove
             for j in range(numberOfDigits):
                 x = (-(200*(numberOfDigits-1)/2) + (j*200) + centerX)
-                root.after((startingNumber - i) * 1000, lambda i, x: count(i, x), int(str(i)[j]), x)
+                digit = int(str(i)[j])
+                root.after((startingNumber - i) * 1000, lambda d=digit, x=x: count(d, x))
+
         countdown_task_id = root.after(startingNumber * 1000, complete)
     else:
         print("Countdown aborted: Window Closed")
@@ -705,10 +729,14 @@ def getPlayerFromEqpID(EqpID):
                 return player
 
 def updateScore(shooterID, shotID):
+    #total score
+    
     # get player from ID
     shooter = getPlayerFromEqpID(shooterID)
-    if shotID != "43" and shotID != "53":
+    if shotID != "43" and shotID != "53":   
         shot = getPlayerFromEqpID(shotID)
+    else:
+        shot = None
 
     # Case 1: Shooter shot base
     if (shooter.Team == 0 and shotID == "43") or (shooter.Team == 1 and shotID == "53"):
@@ -720,7 +748,7 @@ def updateScore(shooterID, shotID):
     # Case 3: Shooter shot same team
     elif shooter.Team == shot.Team and shooter.Score >= 0:
         shooter.Score -= 10 
-    
+    updateTeamScores()
 
 def actionLabelUpdate(shooterID, shotID):
     # Shift labels up 1
@@ -745,10 +773,18 @@ def actionLabelUpdate(shooterID, shotID):
     message = f"{shooterName} shot {shotName}"
     
     # Add new message to bottom
-    actionList[14].config(text=message)
+    actionList[-1].config(text=message)
 
 
 
+def updateTeamScores():
+    redScore = sum(player.Score for player in playerList[:15] if player)
+    greenScore = sum(player.Score for player in playerList[15:] if player)
+
+    if redTeamScoreLabel:
+        redTeamScoreLabel.config(text=f"Score: {redScore}")
+    if greenTeamScoreLabel:
+        greenTeamScoreLabel.config(text=f"Score: {greenScore}")
 
 
 # Initialize ip/ports and send/receive sockets to starting values
